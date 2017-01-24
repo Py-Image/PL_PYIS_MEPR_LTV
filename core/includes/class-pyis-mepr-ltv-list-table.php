@@ -1,7 +1,104 @@
 <?php
+/**
+ * The AJAX-ified WP_List_Table
+ *
+ * @since 1.0.0
+ *
+ * @package PYIS_MEPR_LTV
+ * @subpackage PYIS_MEPR_LTV/core/includes
+ */
+
+defined( 'ABSPATH' ) || die();
+
+if ( ! class_exists( 'WP_List_Table' ) )
+	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 
 class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
-	
+
+	/**
+	 * Normally we would be querying data from a database and manipulating that
+	 * for use in your list table. For this example, we're going to simplify it
+	 * slightly and create a pre-built array. Think of this as the data that might
+	 * be returned by $wpdb->query().
+	 * 
+	 * @var array 
+	 */
+
+	public $example_data = array(
+		array(
+			'ID'		=> 1,
+			'title'		=> '300',
+			'rating'	=> 'R',
+			'director'	=> 'Zach Snyder'
+		),
+		array(
+			'ID'		=> 2,
+			'title'		=> 'Eyes Wide Shut',
+			'rating'	=> 'R',
+			'director'	=> 'Stanley Kubrick'
+		),
+		array(
+			'ID'		=> 3,
+			'title'		=> 'Moulin Rouge!',
+			'rating'	=> 'PG-13',
+			'director'	=> 'Baz Luhrman'
+		),
+		array(
+			'ID'		=> 4,
+			'title'		=> 'Snow White',
+			'rating'	=> 'G',
+			'director'	=> 'Walt Disney'
+		),
+		array(
+			'ID'		=> 5,
+			'title'		=> 'Super 8',
+			'rating'	=> 'PG-13',
+			'director'	=> 'JJ Abrams'
+		),
+		array(
+			'ID'		=> 6,
+			'title'		=> 'The Fountain',
+			'rating'	=> 'PG-13',
+			'director'	=> 'Darren Aronofsky'
+		),
+		array(
+			'ID'		=> 7,
+			'title'		=> 'Watchmen',
+			'rating'	=> 'R',
+			'director'	=> 'Zach Snyder'
+		),
+		array(
+			'ID'		=> 8,
+			'title'		=> 'The Descendants',
+			'rating'	=> 'R',
+			'director'	=> 'Alexander Payne'
+		),
+		array(
+			'ID'		=> 9,
+			'title'		=> 'Moon',
+			'rating'	=> 'R',
+			'director'	=> 'Duncan Jones'
+		),
+		array(
+			'ID'		=> 10,
+			'title'		=> 'Elysium',
+			'rating'	=> 'R',
+			'director'	=> 'Neill Blomkamp'
+		),
+		array(
+			'ID'		=> 11,
+			'title'		=> 'Source Code',
+			'rating'	=> 'PG-13',
+			'director'	=> 'Duncan Jones'
+		),
+		array(
+			'ID'		=> 12,
+			'title'		=> 'Django Unchained',
+			'rating'	=> 'R',
+			'director'	=> 'Quentin Tarantino'
+		)
+	);
+
 	/**
 	 * REQUIRED. Set up a constructor that references the parent constructor. We 
 	 * use the parent reference to set some default configs.
@@ -9,7 +106,6 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	function __construct() {
 
 		global $status, $page;
-
 		//Set parent defaults
 		parent::__construct(
 			array(
@@ -43,7 +139,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * 
 	 * @return string Text or HTML to be placed inside the column <td>
 	 */
-	function column_default( $item, $column_name ) {
+	public function column_default( $item, $column_name ) {
 
 		switch ( $column_name ) {
 
@@ -55,7 +151,6 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				return print_r( $item, true );
 		}
 	}
-
 
 	/**
 	 * Recommended. This is a custom column method and is responsible for what
@@ -74,7 +169,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * 
 	 * @return string Text to be placed inside the column <td> (movie title only)
 	 */
-	function column_title( $item ) {
+	public function column_title( $item ) {
 		
 		//Build row actions
 		$actions = array(
@@ -90,7 +185,6 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		);
 	}
 
-
 	/**
 	 * REQUIRED if displaying checkboxes or using bulk actions! The 'cb' column
 	 * is given special treatment when columns are processed. It ALWAYS needs to
@@ -102,7 +196,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * 
 	 * @return string Text to be placed inside the column <td> (movie title only)
 	 */
-	function column_cb( $item ) {
+	public function column_cb( $item ) {
 
 		return sprintf(
 			'<input type="checkbox" name="%1$s[]" value="%2$s" />',
@@ -110,7 +204,6 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			/*$2%s*/ $item['ID']			//The value of the checkbox should be the record's id
 		);
 	}
-
 
 	/**
 	 * REQUIRED! This method dictates the table's columns and titles. This should
@@ -126,7 +219,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * 
 	 * @return array An associative array containing column information: 'slugs'=>'Visible Titles'
 	 */
-	function get_columns() {
+	public function get_columns() {
 
 		return $columns = array(
 			'cb'		=> '<input type="checkbox" />', //Render a checkbox instead of text
@@ -135,7 +228,6 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			'director'	=> 'Director'
 		);
 	}
-
 
 	/**
 	 * Optional. If you want one or more columns to be sortable (ASC/DESC toggle), 
@@ -151,7 +243,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * 
 	 * @return array An associative array containing all the columns that should be sortable: 'slugs'=>array('data_values',bool)
 	 */
-	function get_sortable_columns() {
+	public function get_sortable_columns() {
 
 		return $sortable_columns = array(
 			'title'	 	=> array( 'title', false ),	//true means it's already sorted
@@ -159,7 +251,6 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			'director'	=> array( 'director', false )
 		);
 	}
-
 
 	/**
 	 * Optional. If you need to include bulk actions in your list table, this is
@@ -175,13 +266,12 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * 
 	 * @return array An associative array containing all the bulk actions: 'slugs'=>'Visible Titles'
 	 */
-	function get_bulk_actions() {
+	public function get_bulk_actions() {
 
 		return $actions = array(
 			'delete'	=> 'Delete'
 		);
 	}
-
 
 	/**
 	 * Optional. You can handle your bulk actions anywhere or anyhow you prefer.
@@ -190,15 +280,14 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * 
 	 * @see $this->prepare_items()
 	 */
-	function process_bulk_action() {
+	public function process_bulk_action() {
 		
 		//Detect when a bulk action is being triggered...
-		if ( 'delete'=== $this->current_action() ) {
+		if( 'delete'=== $this->current_action() ) {
 			wp_die( 'Items deleted (or they would be if we had items to delete)!' );
 		}
 		
 	}
-
 
 	/**
 	 * REQUIRED! This is where you prepare your data for display. This method will
@@ -215,14 +304,14 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * @uses $this->get_pagenum()
 	 * @uses $this->set_pagination_args()
 	 */
-	function prepare_items() {
+	public function prepare_items() {
 
 		global $wpdb; //This is used only if making any database queries
 
 		/**
 		 * First, lets decide how many records per page to show
 		 */
-		$per_page = 4;
+		$per_page = 15;
 		
 		
 		/**
@@ -314,8 +403,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		 * without filtering. We'll need this later, so you should always include it 
 		 * in your own package classes.
 		 */
-		$total_items = count( $data );
-		
+		$total_items = $this->get_items_count();
 		
 		/**
 		 * The WP_List_Table class does not handle pagination for us, so we need
@@ -324,14 +412,11 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		 */
 		$data = array_slice( $data, ( ( $current_page - 1 ) * $per_page ), $per_page );
 		
-		
-		
 		/**
 		 * REQUIRED. Now we can add our *sorted* data to the items property, where 
 		 * it can be used by the rest of the class.
 		 */
 		$this->items = $data;
-		
 		
 		/**
 		 * REQUIRED. We also have to register our pagination options & calculations.
@@ -349,6 +434,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				'order'		=> ! empty( $_REQUEST['order'] ) && '' != $_REQUEST['order'] ? $_REQUEST['order'] : 'asc'
 			)
 		);
+		
 	}
 
 	/**
@@ -358,7 +444,9 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * @since 3.1.0
 	 * @access public
 	 */
-	function display() {
+	public function display() {
+		
+		$this->prepare_items();
 
 		wp_nonce_field( 'ajax-custom-list-nonce', '_ajax_custom_list_nonce' );
 
@@ -374,7 +462,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * @since 3.1.0
 	 * @access public
 	 */
-	function ajax_response() {
+	public function ajax_response() {
 
 		check_ajax_referer( 'ajax-custom-list-nonce', '_ajax_custom_list_nonce' );
 
@@ -416,225 +504,31 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		}
 
 		die( json_encode( $response ) );
+		
+	}
+	
+	public function get_items_count() {
+		
+		global $wpdb;
+		
+		$table_name = $wpdb->prefix . 'mepr_transactions';
+		
+		// You cannot pass a Table Name via $wpdb->prepare() as that will cause the table name to not match
+		// http://wordpress.stackexchange.com/a/25850
+		$query = "
+		SELECT COUNT(*) 
+		FROM $table_name
+		WHERE status != 'failed'
+		AND status != 'refunded'
+		AND status != 'pending'
+		";
+		
+		$total_items = $wpdb->get_var( $query );
+		
+		if ( $total_items === null ) $total_items = 0;
+		
+		return $total_items;
+		
 	}
 
-
 }
-
-
-
-
-
-/** ************************ REGISTER THE TEST PAGE ****************************
- *******************************************************************************
- * Now we just need to define an admin page. For this example, we'll add a top-level
- * menu item to the bottom of the admin menus.
- */
-function tt_add_menu_items(){
-	add_menu_page('Example Plugin List Table', 'List Table Example', 'activate_plugins', 'tt_list_test', 'tt_render_list_page');
-} add_action('admin_menu', 'tt_add_menu_items');
-
-
-
-
-
-/** *************************** RENDER TEST PAGE ********************************
- *******************************************************************************
- * This function renders the admin page and the example list table. Although it's
- * possible to call prepare_items() and display() from the constructor, there
- * are often times where you may need to include logic here between those steps,
- * so we've instead called those methods explicitly. It keeps things flexible, and
- * it's the way the list tables are used in the WordPress core.
- */
-function tt_render_list_page(){
-	
-	//Create an instance of our package class...
-	$testListTable = new TT_Example_List_Table();
-	//Fetch, prepare, sort, and filter our data...
-	$testListTable->prepare_items();
-	
-	?>
-	<div class="wrap">
-		
-		<div id="icon-users" class="icon32"><br/></div>
-		<h2>List Table Test</h2>
-		
-		<div style="background:#ECECEC;border:1px solid #CCC;padding:0 10px;margin-top:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;">
-			<p>This page demonstrates the use of the <tt><a href="http://codex.wordpress.org/Class_Reference/WP_List_Table" target="_blank" style="text-decoration:none;">WP_List_Table</a></tt> class in plugins.</p> 
-			<p>For a detailed explanation of using the <tt><a href="http://codex.wordpress.org/Class_Reference/WP_List_Table" target="_blank" style="text-decoration:none;">WP_List_Table</a></tt>
-			class in your own plugins, you can view this file <a href="<?php echo admin_url( 'plugin-editor.php?plugin='.plugin_basename(__FILE__) ); ?>" style="text-decoration:none;">in the Plugin Editor</a> or simply open <tt style="color:gray;"><?php echo __FILE__ ?></tt> in the PHP editor of your choice.</p>
-			<p>Additional class details are available on the <a href="http://codex.wordpress.org/Class_Reference/WP_List_Table" target="_blank" style="text-decoration:none;">WordPress Codex</a>.</p>
-		</div>
-		
-		<!-- Forms are NOT created automatically, so you need to wrap the table in one to use features like bulk actions -->
-		<form id="movies-filter" method="get">
-			<!-- For plugins, we also need to ensure that the form posts back to our current page -->
-			<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
-			<!-- Now we can render the completed list table -->
-			<?php $testListTable->display() ?>
-		</form>
-		
-	</div>
-	<?php
-}
-
-/**
- * Callback function for 'wp_ajax__ajax_fetch_custom_list' action hook.
- * 
- * Loads the Custom List Table Class and calls ajax_response method
- */
-function _ajax_fetch_custom_list_callback() {
-
-	$wp_list_table = new TT_Example_List_Table();
-	$wp_list_table->ajax_response();
-}
-add_action('wp_ajax__ajax_fetch_custom_list', '_ajax_fetch_custom_list_callback');
-
-/**
- * This function adds the jQuery script to the plugin's page footer
- */
-function ajax_script() {
-
-	$screen = get_current_screen();
-	if ( 'toplevel_page_tt_list_test' != $screen->id )
-		return false;
-?>
-<script type="text/javascript">
-(function($) {
-
-list = {
-
-	/**
-	 * Register our triggers
-	 * 
-	 * We want to capture clicks on specific links, but also value change in
-	 * the pagination input field. The links contain all the information we
-	 * need concerning the wanted page number or ordering, so we'll just
-	 * parse the URL to extract these variables.
-	 * 
-	 * The page number input is trickier: it has no URL so we have to find a
-	 * way around. We'll use the hidden inputs added in TT_Example_List_Table::display()
-	 * to recover the ordering variables, and the default paged input added
-	 * automatically by WordPress.
-	 */
-	init: function() {
-
-		// This will have its utility when dealing with the page number input
-		var timer;
-		var delay = 500;
-
-		// Pagination links, sortable link
-		$('.tablenav-pages a, .manage-column.sortable a, .manage-column.sorted a').on('click', function(e) {
-			// We don't want to actually follow these links
-			e.preventDefault();
-			// Simple way: use the URL to extract our needed variables
-			var query = this.search.substring( 1 );
-			
-			var data = {
-				paged: list.__query( query, 'paged' ) || '1',
-				order: list.__query( query, 'order' ) || 'asc',
-				orderby: list.__query( query, 'orderby' ) || 'title'
-			};
-			list.update( data );
-		});
-
-		// Page number input
-		$('input[name=paged]').on('keyup', function(e) {
-
-			// If user hit enter, we don't want to submit the form
-			// We don't preventDefault() for all keys because it would
-			// also prevent to get the page number!
-			if ( 13 == e.which )
-				e.preventDefault();
-
-			// This time we fetch the variables in inputs
-			var data = {
-				paged: parseInt( $('input[name=paged]').val() ) || '1',
-				order: $('input[name=order]').val() || 'asc',
-				orderby: $('input[name=orderby]').val() || 'title'
-			};
-
-			// Now the timer comes to use: we wait half a second after
-			// the user stopped typing to actually send the call. If
-			// we don't, the keyup event will trigger instantly and
-			// thus may cause duplicate calls before sending the intended
-			// value
-			window.clearTimeout( timer );
-			timer = window.setTimeout(function() {
-				list.update( data );
-			}, delay);
-		});
-	},
-
-	/** AJAX call
-	 * 
-	 * Send the call and replace table parts with updated version!
-	 * 
-	 * @param    object    data The data to pass through AJAX
-	 */
-	update: function( data ) {
-		$.ajax({
-			// /wp-admin/admin-ajax.php
-			url: ajaxurl,
-			// Add action and nonce to our collected data
-			data: $.extend(
-				{
-					_ajax_custom_list_nonce: $('#_ajax_custom_list_nonce').val(),
-					action: '_ajax_fetch_custom_list',
-				},
-				data
-			),
-			// Handle the successful result
-			success: function( response ) {
-
-				// WP_List_Table::ajax_response() returns json
-				var response = $.parseJSON( response );
-
-				// Add the requested rows
-				if ( response.rows.length )
-					$('#the-list').html( response.rows );
-				// Update column headers for sorting
-				if ( response.column_headers.length )
-					$('thead tr, tfoot tr').html( response.column_headers );
-				// Update pagination for navigation
-				if ( response.pagination.bottom.length )
-					$('.tablenav.top .tablenav-pages').html( $(response.pagination.top).html() );
-				if ( response.pagination.top.length )
-					$('.tablenav.bottom .tablenav-pages').html( $(response.pagination.bottom).html() );
-
-				// Init back our event handlers
-				list.init();
-			}
-		});
-	},
-
-	/**
-	 * Filter the URL Query to extract variables
-	 * 
-	 * @see http://css-tricks.com/snippets/javascript/get-url-variables/
-	 * 
-	 * @param    string    query The URL query part containing the variables
-	 * @param    string    variable Name of the variable we want to get
-	 * 
-	 * @return   string|boolean The variable value if available, false else.
-	 */
-	__query: function( query, variable ) {
-
-		var vars = query.split("&");
-		for ( var i = 0; i <vars.length; i++ ) {
-			var pair = vars[ i ].split("=");
-			if ( pair[0] == variable )
-				return pair[1];
-		}
-		return false;
-	},
-}
-
-// Show time!
-list.init();
-
-})(jQuery);
-</script>
-<?php
-}
-add_action('admin_footer', 'ajax_script');
