@@ -403,7 +403,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		 * without filtering. We'll need this later, so you should always include it 
 		 * in your own package classes.
 		 */
-		$total_items = $this->get_items_count();
+		$total_items = $this->get_total_count();
 		
 		/**
 		 * The WP_List_Table class does not handle pagination for us, so we need
@@ -507,7 +507,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		
 	}
 	
-	public function get_items_count() {
+	public function get_total_count() {
 		
 		global $wpdb;
 		
@@ -516,16 +516,15 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		// You cannot pass a Table Name via $wpdb->prepare() as that will cause the table name to not match
 		// http://wordpress.stackexchange.com/a/25850
 		$query = "
-		SELECT COUNT(*) 
+		SELECT COUNT(DISTINCT user_id) 
 		FROM $table_name
 		WHERE status != 'failed'
-		AND status != 'refunded'
 		AND status != 'pending'
-		";
+		AND status != 'refunded'";
 		
 		$total_items = $wpdb->get_var( $query );
 		
-		if ( $total_items === null ) $total_items = 0;
+		if ( $total_items === null ) return 0;
 		
 		return $total_items;
 		
