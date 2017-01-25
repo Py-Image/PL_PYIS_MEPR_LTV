@@ -56,9 +56,6 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * @return string Text or HTML to be placed inside the column <td>
 	 */
 	public function column_default( $item, $column_name ) {
-		
-		// TODO Complete Transactions only
-		// If they have Failed/Pending Transactions, those still get grabbed.
 
 		switch ( $column_name ) {
 
@@ -67,30 +64,37 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			case 'user_login' :
 			case 'user_email' :
 				return $item->$column_name;
-			case 'purchases' : 
+			case 'transactions' :
 				
-				$transactions = $this->completed_transactions_by_user_id( $item->ID );
-				
-				return 'yo';
-				
-			case 'ltv' : 
-				
-				$transactions = $this->completed_transactions_by_user_id( $item->ID );
-				
-				$ltv = 0;
-				
-				foreach ( $transactions as $transaction ) {
+				echo '<ul>';
+				foreach( $item->$column_name as $product ) {
 					
-					$ltv += $transaction->rec->total;
+					echo '<li>' . $product['name'] . '<ul style="list-style: disc; margin-left: 1.5em;">';
+					
+					foreach ( $product['transactions'] as $transaction_id => $transaction_number ) {
+						echo '<li>';
+							echo '<a href="' . admin_url( 'admin.php?page=memberpress-trans&action=edit&id=' . $transaction_id ) . '" title="' . _x( 'Edit/View Transaction', 'Edit/View Transaction Link Title', PYIS_MEPR_LTV_ID ) . '">' . $transaction_number . '</a>';
+						echo '</li>';
+					}
+					
+					echo '</ul></li>';
 					
 				}
+				echo '</ul>';
 				
-				return $ltv;
+				return false;
 				
+			case 'ltv' : 
+				return MeprAppHelper::format_currency( $item->$column_name, true );
 			default :
-				//Show the whole array for troubleshooting purposes
-				return print_r( $item, true );
+				// Show the passed value as what it truly is
+				echo '<pre>';
+				var_dump( $item->$column_name );
+				echo '</pre>';
+				return false;
+				
 		}
+		
 	}
 
 	/**
@@ -113,9 +117,10 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			'last_name' => _x( 'Full Name', 'Full Name Column Header', PYIS_MEPR_LTV_ID ),
 			'user_login' => _x( 'User Login', 'User Login Column Header', PYIS_MEPR_LTV_ID ),
 			'user_email'	=> _x( 'Email Address', 'Email Address Column Header', PYIS_MEPR_LTV_ID ),
-			'purchases'	=> _x( 'Purchases', 'Purchases Column Header', PYIS_MEPR_LTV_ID ),
+			'transactions'	=> _x( 'Completed Transactions', 'Completed Transactions Column Header', PYIS_MEPR_LTV_ID ),
 			'ltv' => _x( 'LTV', 'LTV Column Header', PYIS_MEPR_LTV_ID ),
 		);
+		
 	}
 
 	/**
@@ -135,12 +140,12 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	public function get_sortable_columns() {
 
 		return $sortable_columns = array(
-			'last_name' => array( 'last_name', false ),
-			'user_login' => array( 'user_login', false ),	//true means it's already sorted
+			'last_name' => array( 'last_name', true ), // true means it's already sorted
+			'user_login' => array( 'user_login', false ),
 			'user_email'	=> array( 'user_email', false ),
-			'purchases'	=> array( 'purchases', false ),
 			'ltv' => array( 'ltv', false ),
 		);
+		
 	}
 
 	/**
@@ -397,8 +402,35 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		}
 		
 		$user_query = new WP_User_Query( $args );
+		
+		$results = $user_query->get_results();
+		
+		foreach ( $results as $user ) {
+			
+			$transactions = $this->completed_transactions_by_user_id( $user->ID );
+			
+			$transaction_list = array();
+			$ltv = 0;
+			foreach ( $transactions as $transaction ) {
+				
+				if ( ! isset( $transaction_list[ $transaction->rec->product_id ] ) ) {
+				
+					$transaction_list[ $transaction->rec->product_id ]['name'] = get_the_title( $transaction->rec->product_id );
+						
+				}
+				
+				$transaction_list[ $transaction->rec->product_id ]['transactions'][ $transaction->rec->id ] = $transaction->rec->trans_num;
+				
+				$ltv += $transaction->rec->total;
+				
+			}
+			
+			$user->transactions = $transaction_list;
+			$user->ltv = $ltv;
+			
+		}
 	
-		return $user_query->get_results();
+		return $results;
 		
 	}
 	
