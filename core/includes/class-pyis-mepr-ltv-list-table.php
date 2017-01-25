@@ -348,13 +348,22 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	public function display() {
 		
 		$this->prepare_items();
+		
+		?>
+		
+		<form method="get">
+			<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+			<input type="hidden" id="order" name="order" value="' . $this->_pagination_args['order'] . '" />
+			<input type="hidden" id="orderby" name="orderby" value="' . $this->_pagination_args['orderby'] . '" />
+			<?php
+				$this->search_box( sprintf( 'Search %s', ucwords( $this->_args['plural'] ) ), 'ltv_search' );
+				parent::display();
+			?>
+		</form>
+		<br class="clear" />
 
-		wp_nonce_field( 'ajax-custom-list-nonce', '_ajax_custom_list_nonce' );
-
-		echo '<input type="hidden" id="order" name="order" value="' . $this->_pagination_args['order'] . '" />';
-		echo '<input type="hidden" id="orderby" name="orderby" value="' . $this->_pagination_args['orderby'] . '" />';
-
-		parent::display();
+		<?php
+		
 	}
 
 	/**
