@@ -56,6 +56,9 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * @return string Text or HTML to be placed inside the column <td>
 	 */
 	public function column_default( $item, $column_name ) {
+		
+		// TODO Complete Transactions only
+		// If they have Failed/Pending Transactions, those still get grabbed.
 
 		switch ( $column_name ) {
 
@@ -64,43 +67,30 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			case 'user_login' :
 			case 'user_email' :
 				return $item->$column_name;
+			case 'purchases' : 
+				
+				$transactions = $this->completed_transactions_by_user_id( $item->ID );
+				
+				return 'yo';
+				
+			case 'ltv' : 
+				
+				$transactions = $this->completed_transactions_by_user_id( $item->ID );
+				
+				$ltv = 0;
+				
+				foreach ( $transactions as $transaction ) {
+					
+					$ltv += $transaction->rec->total;
+					
+				}
+				
+				return $ltv;
+				
 			default :
 				//Show the whole array for troubleshooting purposes
 				return print_r( $item, true );
 		}
-	}
-
-	/**
-	 * Recommended. This is a custom column method and is responsible for what
-	 * is rendered in any column with a name/slug of 'title'. Every time the class
-	 * needs to render a column, it first looks for a method named 
-	 * column_{$column_title} - if it exists, that method is run. If it doesn't
-	 * exist, column_default() is called instead.
-	 * 
-	 * This example also illustrates how to implement rollover actions. Actions
-	 * should be an associative array formatted as 'slug'=>'link html' - and you
-	 * will need to generate the URLs yourself. You could even ensure the links
-	 * 
-	 * @see WP_List_Table::single_row_columns()
-	 * 
-	 * @param array $item A singular item (one full row's worth of data)
-	 * 
-	 * @return string Text to be placed inside the column <td> (movie title only)
-	 */
-	public function column_title( $item ) {
-		
-		//Build row actions
-		$actions = array(
-			'edit'		=> sprintf( '<a href="?page=%s&action=%s&movie=%s">Edit</a>', $_REQUEST['page'], 'edit', $item['ID'] ),
-			'delete'	=> sprintf( '<a href="?page=%s&action=%s&movie=%s">Delete</a>', $_REQUEST['page'], 'delete', $item['ID'] ),
-		);
-		
-		//Return the title contents
-		return sprintf('%1$s <span style="color:silver">(id:%2$s)</span>%3$s',
-			/*$1%s*/ $item['title'],
-			/*$2%s*/ $item['ID'],
-			/*$3%s*/ $this->row_actions( $actions )
-		);
 	}
 
 	/**
@@ -123,8 +113,8 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			'last_name' => _x( 'Full Name', 'Full Name Column Header', PYIS_MEPR_LTV_ID ),
 			'user_login' => _x( 'User Login', 'User Login Column Header', PYIS_MEPR_LTV_ID ),
 			'user_email'	=> _x( 'Email Address', 'Email Address Column Header', PYIS_MEPR_LTV_ID ),
-			//'purchases'	=> _x( 'Purchases', 'Purchases Column Header', PYIS_MEPR_LTV_ID ),
-			//'ltv' => _x( 'LTV', 'LTV Column Header', PYIS_MEPR_LTV_ID ),
+			'purchases'	=> _x( 'Purchases', 'Purchases Column Header', PYIS_MEPR_LTV_ID ),
+			'ltv' => _x( 'LTV', 'LTV Column Header', PYIS_MEPR_LTV_ID ),
 		);
 	}
 
@@ -409,6 +399,34 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		$user_query = new WP_User_Query( $args );
 	
 		return $user_query->get_results();
+		
+	}
+	
+	/**
+	 * MemberPress is so weird about this stuff
+	 * @param  [[Type]] $user_id [[Description]]
+	 * @return boolean  [[Description]]
+	 */
+	public function completed_transactions_by_user_id( $user_id ) {
+		
+		$transactions = MeprTransaction::get_all_objects_by_user_id( $user_id );
+		
+		$transactions = array_filter( $transactions, array( $this, 'completed_transactions_only' ) );
+		
+		return $transactions;
+		
+	}
+	
+	/**
+	 * Array Filter callback needs to be a Class Method to prevent Function Redclaration Errors
+	 * @param  [[Type]] $object [[Description]]
+	 * @return boolean  [[Description]]
+	 */
+	public function completed_transactions_only( $object ) {
+		
+		if ( $object->status !== 'complete' ) return false;
+			
+		return true;
 		
 	}
 
