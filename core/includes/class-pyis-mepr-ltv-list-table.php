@@ -144,9 +144,10 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		switch ( $column_name ) {
 
 			case 'user_fullname' :
+				return get_user_meta( $item->ID, 'first_name', true ) . ' ' . get_user_meta( $item->ID, 'last_name', true );
 			case 'user_login' :
 			case 'user_email' :
-				return $item[ $column_name ];
+				return $item->$column_name;
 			default :
 				//Show the whole array for troubleshooting purposes
 				return print_r( $item, true );
@@ -310,7 +311,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			return ( 'asc' === $order ) ? $result : -$result;
 			
 		}
-		usort( $data, 'usort_reorder' );
+		//usort( $data, 'usort_reorder' );
 		
 		
 		/***********************************************************************
@@ -340,7 +341,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		 * without filtering. We'll need this later, so you should always include it 
 		 * in your own package classes.
 		 */
-		$total_items = $this->get_total_count();
+		$total_items = count( $data );
 		
 		/**
 		 * The WP_List_Table class does not handle pagination for us, so we need
@@ -444,27 +445,6 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		
 	}
 	
-	public function get_total_count() {
-		
-		global $wpdb;
-		
-		$table_name = $wpdb->prefix . 'mepr_transactions';
-		
-		// You cannot pass a Table Name via $wpdb->prepare() as that will cause the table name to not match
-		// http://wordpress.stackexchange.com/a/25850
-		$query = "
-		SELECT COUNT(DISTINCT user_id) 
-		FROM $table_name
-		WHERE status = 'complete'";
-		
-		$total_items = $wpdb->get_var( $query );
-		
-		if ( $total_items === null ) return 0;
-		
-		return $total_items;
-		
-	}
-	
 	public function query() {
 		
 		global $wpdb;
@@ -472,18 +452,67 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		$table_name = $wpdb->prefix . 'mepr_transactions';
 		
 		$query = "
-		SELECT $wpdb->users.ID,$wpdb->users.user_login,$wpdb->users.user_email
-		FROM $wpdb->users
-		LEFT OUTER JOIN $table_name
-		ON $table_name.user_id = $wpdb->users.ID";
+		SELECT DISTINCT(user_id)
+		FROM $table_name
+		WHERE status = 'complete'";
 		
-		$results = $wpdb->get_results( $query, ARRAY_A );
+		// Grab a list of User IDs in the Transactions Table. This lets us narrow things down in a User Query
+		$has_transactions = $wpdb->get_results( $query, ARRAY_N );
 		
-		foreach ( $results as &$result ) {
-			$result['user_fullname'] = get_user_meta( $result['ID'], 'first_name', true ) . ' ' . get_user_meta( $result['ID'], 'last_name', true );
+		// We want a flat Array of just the User IDs
+		function extract_user_id( $array ) {
+
+			$reset = reset( $array );
+			
+			return $reset;
+			
 		}
+		$has_transactions = array_map( 'extract_user_id', $has_transactions );
+		
+		$args = array (
+			'meta_key' => 'last_name',
+            'orderby' => 'meta_value',
+            'order' => 'ASC',
+			'include' => $has_transactions,
+			'meta_query'     => array(
+				'relation' => 'AND', // Based on $_GET, we tack onto this with successive rules that must all be TRUE
+				array(
+					'relation' => 'OR', // In order to query two Roles with wp_user_query() you need to use a Meta Query. Not very intuitive.
+					array( 
+						'key' => $wpdb->prefix . 'capabilities',
+						'value' => 'subscriber',
+						'compare' => 'LIKE',
+					),
+					array(
+						'relation' => 'AND',
+						array(
+							'key' => $wpdb->prefix . 'capabilities',
+							'value' => 'administrator',
+							'compare' => 'LIKE',
+						),
+						array(
+							'key' => 'first_name',
+							'value' => 'Adrian',
+							'compare' => 'LIKE',
+						),
+						array(
+							'key' => 'last_name',
+							'value' => 'Rosebrock',
+							'compare' => 'LIKE',
+						)
+					),
+				),
+            ),
+			'fields' => array(
+				'ID',
+				'user_login',
+				'user_email',
+			),
+		);
+		
+		$user_query = new WP_User_Query( $args );
 	
-		return $results;
+		return $user_query->get_results();
 		
 	}
 
