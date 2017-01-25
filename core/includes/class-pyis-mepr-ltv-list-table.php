@@ -66,7 +66,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				return $item->$column_name;
 			case 'transactions' :
 				
-				echo '<ul>';
+				echo '<ul style="margin-top:0">';
 				foreach( $item->$column_name as $product ) {
 					
 					echo '<li>' . $product['name'] . '<ul style="list-style: disc; margin-left: 1.5em;">';
