@@ -143,10 +143,11 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 
 		switch ( $column_name ) {
 
-			case 'rating':
-			case 'director':
+			case 'user_fullname' :
+			case 'user_login' :
+			case 'user_email' :
 				return $item[ $column_name ];
-			default:
+			default :
 				//Show the whole array for troubleshooting purposes
 				return print_r( $item, true );
 		}
@@ -186,26 +187,6 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * REQUIRED if displaying checkboxes or using bulk actions! The 'cb' column
-	 * is given special treatment when columns are processed. It ALWAYS needs to
-	 * have it's own method.
-	 * 
-	 * @see WP_List_Table::single_row_columns()
-	 * 
-	 * @param array $item A singular item (one full row's worth of data)
-	 * 
-	 * @return string Text to be placed inside the column <td> (movie title only)
-	 */
-	public function column_cb( $item ) {
-
-		return sprintf(
-			'<input type="checkbox" name="%1$s[]" value="%2$s" />',
-			/*$1%s*/ $this->_args['singular'],  	//Let's simply repurpose the table's singular label ("movie")
-			/*$2%s*/ $item['ID']			//The value of the checkbox should be the record's id
-		);
-	}
-
-	/**
 	 * REQUIRED! This method dictates the table's columns and titles. This should
 	 * return an array where the key is the column slug (and class) and the value 
 	 * is the column's title text. If you need a checkbox for bulk actions, refer
@@ -222,10 +203,11 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	public function get_columns() {
 
 		return $columns = array(
-			'cb'		=> '<input type="checkbox" />', //Render a checkbox instead of text
-			'title'		=> 'Title',
-			'rating'	=> 'Rating',
-			'director'	=> 'Director'
+			'user_fullname' => _x( 'Full Name', 'Full Name Column Header', PYIS_MEPR_LTV_ID ),
+			'user_login' => _x( 'User Login', 'User Login Column Header', PYIS_MEPR_LTV_ID ),
+			'user_email'	=> _x( 'Email Address', 'Email Address Column Header', PYIS_MEPR_LTV_ID ),
+			//'purchases'	=> _x( 'Purchases', 'Purchases Column Header', PYIS_MEPR_LTV_ID ),
+			//'ltv' => _x( 'LTV', 'LTV Column Header', PYIS_MEPR_LTV_ID ),
 		);
 	}
 
@@ -246,47 +228,12 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	public function get_sortable_columns() {
 
 		return $sortable_columns = array(
-			'title'	 	=> array( 'title', false ),	//true means it's already sorted
-			'rating'	=> array( 'rating', false ),
-			'director'	=> array( 'director', false )
+			'user_fullname' => array( 'user_fullname', false ),
+			'user_login' => array( 'user_login', false ),	//true means it's already sorted
+			'user_email'	=> array( 'user_email', false ),
+			'purchases'	=> array( 'purchases', false ),
+			'ltv' => array( 'ltv', false ),
 		);
-	}
-
-	/**
-	 * Optional. If you need to include bulk actions in your list table, this is
-	 * the place to define them. Bulk actions are an associative array in the format
-	 * 'slug'=>'Visible Title'
-	 * 
-	 * If this method returns an empty value, no bulk action will be rendered. If
-	 * you specify any bulk actions, the bulk actions box will be rendered with
-	 * the table automatically on display().
-	 * 
-	 * Also note that list tables are not automatically wrapped in <form> elements,
-	 * so you will need to create those manually in order for bulk actions to function.
-	 * 
-	 * @return array An associative array containing all the bulk actions: 'slugs'=>'Visible Titles'
-	 */
-	public function get_bulk_actions() {
-
-		return $actions = array(
-			'delete'	=> 'Delete'
-		);
-	}
-
-	/**
-	 * Optional. You can handle your bulk actions anywhere or anyhow you prefer.
-	 * For this example package, we will handle it in the class to keep things
-	 * clean and organized.
-	 * 
-	 * @see $this->prepare_items()
-	 */
-	public function process_bulk_action() {
-		
-		//Detect when a bulk action is being triggered...
-		if( 'delete'=== $this->current_action() ) {
-			wp_die( 'Items deleted (or they would be if we had items to delete)!' );
-		}
-		
 	}
 
 	/**
@@ -311,8 +258,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		/**
 		 * First, lets decide how many records per page to show
 		 */
-		$per_page = 15;
-		
+		$per_page = apply_filters( 'pyis_mepr_ltv_per_page', 15 );
 		
 		/**
 		 * REQUIRED. Now we need to define our column headers. This includes a complete
@@ -325,22 +271,13 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		$hidden = array();
 		$sortable = $this->get_sortable_columns();
 		
-		
 		/**
 		 * REQUIRED. Finally, we build an array to be used by the class for column 
 		 * headers. The $this->_column_headers property takes an array which contains
 		 * 3 other arrays. One for all columns, one for hidden columns, and one
 		 * for sortable columns.
 		 */
-		$this->_column_headers = array($columns, $hidden, $sortable);
-		
-		
-		/**
-		 * Optional. You can handle your bulk actions however you see fit. In this
-		 * case, we'll handle them within our package just to keep things clean.
-		 */
-		$this->process_bulk_action();
-		
+		$this->_column_headers = array( $columns, $hidden, $sortable );
 		
 		/**
 		 * Instead of querying a database, we're going to fetch the example data
@@ -351,8 +288,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		 * use sort and pagination data to build a custom query instead, as you'll
 		 * be able to use your precisely-queried data immediately.
 		 */
-		$data = $this->example_data;
-				
+		$data = $this->query();
 		
 		/**
 		 * This checks for sorting input and sorts the data in our array accordingly.
@@ -365,13 +301,14 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		function usort_reorder( $a, $b ) {
 
 			//If no sort, default to title
-			$orderby = ( ! empty( $_REQUEST['orderby'] ) ) ? $_REQUEST['orderby'] : 'title';
+			$orderby = ( ! empty( $_REQUEST['orderby'] ) ) ? $_REQUEST['orderby'] : 'user_fullname';
 			//If no order, default to asc
 			$order = ( ! empty( $_REQUEST['order'] ) ) ? $_REQUEST['order'] : 'asc';
 			 //Determine sort order
 			$result = strcmp( $a[ $orderby ], $b[ $orderby ] );
 			//Send final sort direction to usort
-			return ( 'asc' === $order ) ? $result : -$result; 
+			return ( 'asc' === $order ) ? $result : -$result;
+			
 		}
 		usort( $data, 'usort_reorder' );
 		
@@ -518,15 +455,35 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		$query = "
 		SELECT COUNT(DISTINCT user_id) 
 		FROM $table_name
-		WHERE status != 'failed'
-		AND status != 'pending'
-		AND status != 'refunded'";
+		WHERE status = 'complete'";
 		
 		$total_items = $wpdb->get_var( $query );
 		
 		if ( $total_items === null ) return 0;
 		
 		return $total_items;
+		
+	}
+	
+	public function query() {
+		
+		global $wpdb;
+		
+		$table_name = $wpdb->prefix . 'mepr_transactions';
+		
+		$query = "
+		SELECT $wpdb->users.ID,$wpdb->users.user_login,$wpdb->users.user_email
+		FROM $wpdb->users
+		LEFT OUTER JOIN $table_name
+		ON $table_name.user_id = $wpdb->users.ID";
+		
+		$results = $wpdb->get_results( $query, ARRAY_A );
+		
+		foreach ( $results as &$result ) {
+			$result['user_fullname'] = get_user_meta( $result['ID'], 'first_name', true ) . ' ' . get_user_meta( $result['ID'], 'last_name', true );
+		}
+	
+		return $results;
 		
 	}
 
