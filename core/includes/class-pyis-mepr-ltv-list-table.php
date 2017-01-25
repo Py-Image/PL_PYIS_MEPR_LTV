@@ -143,7 +143,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 
 		switch ( $column_name ) {
 
-			case 'user_fullname' :
+			case 'last_name' :
 				return get_user_meta( $item->ID, 'first_name', true ) . ' ' . get_user_meta( $item->ID, 'last_name', true );
 			case 'user_login' :
 			case 'user_email' :
@@ -204,7 +204,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	public function get_columns() {
 
 		return $columns = array(
-			'user_fullname' => _x( 'Full Name', 'Full Name Column Header', PYIS_MEPR_LTV_ID ),
+			'last_name' => _x( 'Full Name', 'Full Name Column Header', PYIS_MEPR_LTV_ID ),
 			'user_login' => _x( 'User Login', 'User Login Column Header', PYIS_MEPR_LTV_ID ),
 			'user_email'	=> _x( 'Email Address', 'Email Address Column Header', PYIS_MEPR_LTV_ID ),
 			//'purchases'	=> _x( 'Purchases', 'Purchases Column Header', PYIS_MEPR_LTV_ID ),
@@ -229,7 +229,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	public function get_sortable_columns() {
 
 		return $sortable_columns = array(
-			'user_fullname' => array( 'user_fullname', false ),
+			'last_name' => array( 'last_name', false ),
 			'user_login' => array( 'user_login', false ),	//true means it's already sorted
 			'user_email'	=> array( 'user_email', false ),
 			'purchases'	=> array( 'purchases', false ),
@@ -290,43 +290,6 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		 * be able to use your precisely-queried data immediately.
 		 */
 		$data = $this->query();
-		
-		/**
-		 * This checks for sorting input and sorts the data in our array accordingly.
-		 * 
-		 * In a real-world situation involving a database, you would probably want 
-		 * to handle sorting by passing the 'orderby' and 'order' values directly 
-		 * to a custom query. The returned data will be pre-sorted, and this array
-		 * sorting technique would be unnecessary.
-		 */
-		function usort_reorder( $a, $b ) {
-
-			//If no sort, default to title
-			$orderby = ( ! empty( $_REQUEST['orderby'] ) ) ? $_REQUEST['orderby'] : 'user_fullname';
-			//If no order, default to asc
-			$order = ( ! empty( $_REQUEST['order'] ) ) ? $_REQUEST['order'] : 'asc';
-			 //Determine sort order
-			$result = strcmp( $a[ $orderby ], $b[ $orderby ] );
-			//Send final sort direction to usort
-			return ( 'asc' === $order ) ? $result : -$result;
-			
-		}
-		//usort( $data, 'usort_reorder' );
-		
-		
-		/***********************************************************************
-		 * ---------------------------------------------------------------------
-		 * vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-		 * 
-		 * In a real-world situation, this is where you would place your query.
-		 *
-		 * For information on making queries in WordPress, see this Codex entry:
-		 * http://codex.wordpress.org/Class_Reference/wpdb
-		 * 
-		 * ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-		 * ---------------------------------------------------------------------
-		 **********************************************************************/
-		
 				
 		/**
 		 * REQUIRED for pagination. Let's figure out what page the user is currently 
@@ -470,9 +433,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		$has_transactions = array_map( 'extract_user_id', $has_transactions );
 		
 		$args = array (
-			'meta_key' => 'last_name',
-            'orderby' => 'meta_value',
-            'order' => 'ASC',
+            'order' => ( isset( $_GET['order'] ) ) ? strtoupper( $_GET['order'] ) : 'ASC',
 			'include' => $has_transactions,
 			'meta_query'     => array(
 				'relation' => 'AND', // Based on $_GET, we tack onto this with successive rules that must all be TRUE
@@ -509,6 +470,16 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				'user_email',
 			),
 		);
+		
+		$orderby = ( isset( $_GET['orderby'] ) ) ? $_GET['orderby'] : 'last_name';
+		
+		if ( $orderby == 'last_name' ) {
+			$args['meta_key'] = $orderby;
+			$args['orderby'] = 'meta_value';
+		}
+		else {
+			$args['orderby'] = $orderby;
+		}
 		
 		$user_query = new WP_User_Query( $args );
 	
