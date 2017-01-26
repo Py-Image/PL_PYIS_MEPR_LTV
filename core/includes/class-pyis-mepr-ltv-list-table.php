@@ -436,8 +436,12 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	
 	/**
 	 * MemberPress is so weird about this stuff
-	 * @param  [[Type]] $user_id [[Description]]
-	 * @return boolean  [[Description]]
+	 * 
+	 * @param		integer $user_id User ID
+	 *                               
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		array   Array of Transactions that are Complete
 	 */
 	public function completed_transactions_by_user_id( $user_id ) {
 		
@@ -451,8 +455,12 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	
 	/**
 	 * Array Filter callback needs to be a Class Method to prevent Function Redclaration Errors
-	 * @param  [[Type]] $object [[Description]]
-	 * @return boolean  [[Description]]
+	 * 
+	 * @param		object $object Transaction Object
+	 *                                    
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		array  Filtered Transactions Array
 	 */
 	public function completed_transactions_only( $object ) {
 		
