@@ -74,13 +74,9 @@
 				url: location.origin + ajaxurl,
 				data: data,
 				success: function( response ) {
-					
-					console.log( response );
 
 					// WP_List_Table::ajax_response() returns json
 					var response = $.parseJSON( response );
-					
-					console.log( response );
 
 					// Add the requested rows
 					if ( response.rows.length ) {

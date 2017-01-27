@@ -74,7 +74,7 @@ class PYIS_MEPR_LTV_Admin {
 		$this->require_necessities();
 		
 		$table = new PYIS_MEPR_LTV_List_Table();
-		$table->ajax_reponse();
+		$table->ajax_response();
 		
 	}
 	

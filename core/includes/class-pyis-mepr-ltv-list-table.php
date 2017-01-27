@@ -293,8 +293,8 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * @access public
 	 */
 	public function ajax_response() {
-/*
-		//check_ajax_referer( 'ajax-custom-list-nonce', '_ajax_custom_list_nonce' );
+		
+		check_ajax_referer( 'ajax-custom-list-nonce', '_ajax_custom_list_nonce' );
 
 		$this->prepare_items();
 
@@ -334,9 +334,6 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		}
 
 		die( json_encode( $response ) );
-		*/
-		
-		echo json_encode( array( 'test' ) );
 		
 	}
 	
