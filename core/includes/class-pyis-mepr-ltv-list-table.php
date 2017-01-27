@@ -148,10 +148,10 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	public function get_sortable_columns() {
 
 		return $sortable_columns = array(
-			'last_name' => array( 'last_name', true ), // true means it's already sorted
-			'user_login' => array( 'user_login', false ),
-			'user_email'	=> array( 'user_email', false ),
-			'ltv' => array( 'ltv', false ),
+			'last_name' => array( 'last_name', ( $_REQUEST['orderby'] == 'last_name' && strtolower( $_REQUEST['order'] ) == 'asc' ) ? true : false  ), // true means it's already sorted
+			'user_login' => array( 'user_login', ( $_REQUEST['orderby'] == 'user_login' && strtolower( $_REQUEST['order'] ) == 'asc' ) ? true : false  ),
+			'user_email'	=> array( 'user_email', ( $_REQUEST['orderby'] == 'user_email' && strtolower( $_REQUEST['order'] ) == 'asc' ) ? true : false  ),
+			'ltv' => array( 'ltv', ( $_REQUEST['orderby'] == 'ltv' && strtolower( $_REQUEST['order'] ) == 'asc' ) ? true : false  ),
 		);
 		
 	}
@@ -272,8 +272,8 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		
 		<form method="get">
 			<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
-			<input type="hidden" id="order" name="order" value="' . $this->_pagination_args['order'] . '" />
-			<input type="hidden" id="orderby" name="orderby" value="' . $this->_pagination_args['orderby'] . '" />
+			<input type="hidden" id="order" name="order" value="<?php echo $this->_pagination_args['order']; ?>" />
+			<input type="hidden" id="orderby" name="orderby" value="<?php echo $this->_pagination_args['orderby']; ?>" />
 			<?php
 				wp_nonce_field( 'ajax-custom-list-nonce', '_ajax_custom_list_nonce' );
 				$this->search_box( sprintf( 'Search %s', ucwords( $this->_args['plural'] ) ), 'ltv_search' );
@@ -355,10 +355,10 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		$has_transactions = array_map( array( $this,  'extract_user_id' ), $has_transactions );
 		
 		$args = array (
-            'order' => ( isset( $_GET['order'] ) ) ? strtoupper( $_GET['order'] ) : 'ASC',
+            'order' => ( isset( $_REQUEST['order'] ) ) ? strtoupper( $_REQUEST['order'] ) : 'ASC',
 			'include' => $has_transactions,
 			'meta_query'     => array(
-				'relation' => 'AND', // Based on $_GET, we tack onto this with successive rules that must all be TRUE
+				'relation' => 'AND', // Based on $_REQUEST, we tack onto this with successive rules that must all be TRUE
 				array(
 					'relation' => 'OR', // In order to query two Roles with wp_user_query() you need to use a Meta Query. Not very intuitive.
 					array( 
@@ -393,7 +393,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			),
 		);
 		
-		$orderby = ( isset( $_GET['orderby'] ) ) ? $_GET['orderby'] : 'last_name';
+		$orderby = ( isset( $_REQUEST['orderby'] ) ) ? $_REQUEST['orderby'] : 'last_name';
 		
 		if ( $orderby == 'last_name' ) {
 			$args['meta_key'] = $orderby;
