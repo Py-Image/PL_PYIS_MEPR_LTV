@@ -23,12 +23,14 @@
 
 				// Get the value for each variable
 				var data = {
-					paged: pyisAjaxListTable._query( query, 'paged' ) || '1',
-					order: pyisAjaxListTable._query( query, 'order' ) || 'asc',
-					orderby: pyisAjaxListTable._query( query, 'orderby' ) || 'last_name'
+					paged: pyisAjaxListTable._query( query, 'paged' ) || $( 'input[name="paged"]' ).val(),
+					order: pyisAjaxListTable._query( query, 'order' ) || $( 'input[name="order"]' ).val(),
+					orderby: pyisAjaxListTable._query( query, 'orderby' ) || $( 'input[name="orderby"]' ).val(),
 				};
 				
-				console.log( data );
+				$( 'input[name="paged"]' ).val( data.paged );
+				$( 'input[name="order"]' ).val( data.order );
+				$( 'input[name="orderby"]' ).val( data.orderby );
 				
 				// Update the table
 				pyisAjaxListTable.update( data );

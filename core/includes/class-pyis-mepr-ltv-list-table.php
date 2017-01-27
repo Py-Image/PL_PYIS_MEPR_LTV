@@ -295,7 +295,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		?>
 		
 		<form method="get">
-			<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+			<input type="hidden" name="paged" value="<?php echo isset( $_REQUEST['paged'] ) ? $_REQUEST['paged'] : '1'; ?>" />
 			<input type="hidden" id="order" name="order" value="<?php echo $this->_pagination_args['order']; ?>" />
 			<input type="hidden" id="orderby" name="orderby" value="<?php echo $this->_pagination_args['orderby']; ?>" />
 			<?php
@@ -455,6 +455,14 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			$user->ltv = $ltv;
 			
 		}
+		
+		// If we're ordering by LTV
+		if ( isset( $_REQUEST['orderby'] ) &&
+			$_REQUEST['orderby'] == 'ltv' ) {
+			
+			usort( $results, array( $this, 'usort_ltv' ) );
+			
+		}
 	
 		return $results;
 		
@@ -506,6 +514,40 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		if ( $object->status !== 'complete' ) return false;
 			
 		return true;
+		
+	}
+	
+	/**
+	 * Sort the resulting Array of Objects by LTV
+	 * 
+	 * @param		object  $a WP_User Object with Transactions and LTV added
+	 * @param		object  $b WP_User Object with Transactions and LTV added
+	 *                                                             
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		integer Whether to move forward or backward in the Stack
+	 */
+	public function usort_ltv( $a, $b ) {
+		
+		// If no order, default to asc
+		$order = ( ! empty( $_REQUEST['order'] ) ) ? $_REQUEST['order'] : 'asc';
+		
+		if ( $a->ltv == 0 && $b->ltv !== 0 ) {
+			$result = -1;
+		}
+		else if ( $a->ltv !== 0 && $b->ltv == 0 ) {
+			$result = 1;
+		}
+		else {
+			$result = ( $a->ltv > $b->ltv ) ? 1 : -1;
+		}
+		
+		if ( $order == 'asc' ) {
+			return $result;
+		}
+		else {
+			return -$result;
+		}
 		
 	}
 	
