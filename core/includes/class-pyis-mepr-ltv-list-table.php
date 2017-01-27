@@ -146,13 +146,32 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * @return array An associative array containing all the columns that should be sortable: 'slugs'=>array('data_values',bool)
 	 */
 	public function get_sortable_columns() {
-
-		return $sortable_columns = array(
-			'last_name' => array( 'last_name', ( $_REQUEST['orderby'] == 'last_name' && strtolower( $_REQUEST['order'] ) == 'asc' ) ? true : false  ), // true means it's already sorted
-			'user_login' => array( 'user_login', ( $_REQUEST['orderby'] == 'user_login' && strtolower( $_REQUEST['order'] ) == 'asc' ) ? true : false  ),
-			'user_email'	=> array( 'user_email', ( $_REQUEST['orderby'] == 'user_email' && strtolower( $_REQUEST['order'] ) == 'asc' ) ? true : false  ),
-			'ltv' => array( 'ltv', ( $_REQUEST['orderby'] == 'ltv' && strtolower( $_REQUEST['order'] ) == 'asc' ) ? true : false  ),
+		
+		$sortable_columns = array(
+			'last_name',
+			'user_login',
+			'user_email',
+			'ltv',
 		);
+		
+		$result = array(); // After determining the correct values, this will be populated
+		foreach ( $sortable_columns as $column ) {
+			
+			if ( isset( $_REQUEST['orderby'] ) && 
+				strtolower( $_REQUEST['orderby'] ) == $column && 
+				isset( $_REQUEST['order'] ) && 
+				strtolower( $_REQUEST['order'] ) == 'asc' ) {
+				
+				$result[ $column ] = array( $column, true );
+				
+			}
+			else {
+				$result[ $column ] = array( $column, false );
+			}
+			
+		}
+
+		return $result;
 		
 	}
 
