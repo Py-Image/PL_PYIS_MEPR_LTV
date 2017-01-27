@@ -169,6 +169,11 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				$result[ $column ] = array( $column, false );
 			}
 			
+			// If we aren't ordering by anything else, default to Last Name
+			if ( ! isset( $_REQUEST['orderby'] ) ) {
+				$result['last_name'] = array( 'last_name', true );
+			}
+			
 		}
 
 		return $result;
