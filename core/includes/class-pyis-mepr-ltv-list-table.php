@@ -23,13 +23,10 @@ $GLOBALS['hook_suffix'] = 'pyis-mepr-ltv';
 
 class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 
-	/**
-	 * REQUIRED. Set up a constructor that references the parent constructor. We 
-	 * use the parent reference to set some default configs.
-	 */
 	function __construct() {
 
 		global $status, $page;
+		
 		//Set parent defaults
 		parent::__construct(
 			array(
@@ -40,28 +37,16 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		);
 		
 	}
-
+	
 	/**
-	 * Recommended. This method is called when the parent class can't find a method
-	 * specifically build for a given column. Generally, it's recommended to include
-	 * one method for each column you want to render, keeping your package class
-	 * neat and organized. For example, if the class needs to process a column
-	 * named 'title', it would first see if a method named $this->column_title() 
-	 * exists - if it does, that method will be used. If it doesn't, this one will
-	 * be used. Generally, you should try to use custom column methods as much as 
-	 * possible. 
+	 * Output the data within a Table Cell
 	 * 
-	 * Since we have defined a column_title() method later on, this method doesn't
-	 * need to concern itself with any column with a name of 'title'. Instead, it
-	 * needs to handle everything else.
-	 * 
-	 * For more detailed insight into how columns are handled, take a look at 
-	 * WP_List_Table::single_row_columns()
-	 * 
-	 * @param array $item A singular item (one full row's worth of data)
-	 * @param array $column_name The name/slug of the column to be processed
-	 * 
-	 * @return string Text or HTML to be placed inside the column <td>
+	 * @param		object $item        A singular item (one full row's worth of data)
+	 * @param		string $column_name The name/slug of the column to be processed
+	 *                                                               
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		string Text or HTML to be placed inside the column <td>
 	 */
 	public function column_default( $item, $column_name ) {
 
@@ -104,20 +89,13 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		}
 		
 	}
-
+	
 	/**
-	 * REQUIRED! This method dictates the table's columns and titles. This should
-	 * return an array where the key is the column slug (and class) and the value 
-	 * is the column's title text. If you need a checkbox for bulk actions, refer
-	 * to the $columns array below.
+	 * Defines the Headers for each Column
 	 * 
-	 * The 'cb' column is treated differently than the rest. If including a checkbox
-	 * column in your table you must create a column_cb() method. If you don't need
-	 * bulk actions or checkboxes, simply leave the 'cb' entry out of your array.
-	 * 
-	 * @see WP_List_Table::single_row_columns()
-	 * 
-	 * @return array An associative array containing column information: 'slugs'=>'Visible Titles'
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		array An associative array containing column information: 'slug' => 'Visible Title'
 	 */
 	public function get_columns() {
 
@@ -179,21 +157,13 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		return $result;
 		
 	}
-
+	
 	/**
-	 * REQUIRED! This is where you prepare your data for display. This method will
-	 * usually be used to query the database, sort and filter the data, and generally
-	 * get it ready to be displayed. At a minimum, we should set $this->items and
-	 * $this->set_pagination_args(), although the following properties and methods
-	 * are frequently interacted with here...
+	 * Queries the Database and sets up everything that WP_List_Table expects to find
 	 * 
-	 * @global WPDB $wpdb
-	 * @uses $this->_column_headers
-	 * @uses $this->items
-	 * @uses $this->get_columns()
-	 * @uses $this->get_sortable_columns()
-	 * @uses $this->get_pagenum()
-	 * @uses $this->set_pagination_args()
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		void
 	 */
 	public function prepare_items() {
 
@@ -205,76 +175,47 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		$per_page = apply_filters( 'pyis_mepr_ltv_per_page', 15 );
 		
 		/**
-		 * REQUIRED. Now we need to define our column headers. This includes a complete
-		 * array of columns to be displayed (slugs & titles), a list of columns
-		 * to keep hidden, and a list of columns that are sortable. Each of these
-		 * can be defined in another method (as we've done here) before being
-		 * used to build the value for our _column_headers property.
+		 * Set up the Columns and their Headers
 		 */
 		$columns = $this->get_columns();
 		$hidden = array();
 		$sortable = $this->get_sortable_columns();
 		
-		/**
-		 * REQUIRED. Finally, we build an array to be used by the class for column 
-		 * headers. The $this->_column_headers property takes an array which contains
-		 * 3 other arrays. One for all columns, one for hidden columns, and one
-		 * for sortable columns.
-		 */
 		$this->_column_headers = array( $columns, $hidden, $sortable );
 		
-		/**
-		 * Instead of querying a database, we're going to fetch the example data
-		 * property we created for use in this plugin. This makes this example 
-		 * package slightly different than one you might build on your own. In 
-		 * this example, we'll be using array manipulation to sort and paginate 
-		 * our data. In a real-world implementation, you will probably want to 
-		 * use sort and pagination data to build a custom query instead, as you'll
-		 * be able to use your precisely-queried data immediately.
-		 */
 		$data = $this->query();
 				
 		/**
-		 * REQUIRED for pagination. Let's figure out what page the user is currently 
-		 * looking at. We'll need this later, so you should always include it in 
-		 * your own package classes.
+		 * Determine Current Page
 		 */
 		$current_page = $this->get_pagenum();
 		
 		/**
-		 * REQUIRED for pagination. Let's check how many items are in our data array. 
-		 * In real-world use, this would be the total number of items in your database, 
-		 * without filtering. We'll need this later, so you should always include it 
-		 * in your own package classes.
+		 * Determine total
 		 */
 		$total_items = count( $data );
 		
 		/**
-		 * The WP_List_Table class does not handle pagination for us, so we need
-		 * to ensure that the data is trimmed to only the current page. We can use
-		 * array_slice() to 
+		 * Trim the data to only the current page
+		 * Unfortunately due to how we need to grab the data via AJAX, we need to grab it all at once
+		 * This also helps when we sort by LTV, since LTV isn't User Data.
 		 */
 		$data = array_slice( $data, ( ( $current_page - 1 ) * $per_page ), $per_page );
 		
 		/**
-		 * REQUIRED. Now we can add our *sorted* data to the items property, where 
-		 * it can be used by the rest of the class.
+		 * Set the Sorted Data to the items Member
 		 */
 		$this->items = $data;
 		
 		/**
-		 * REQUIRED. We also have to register our pagination options & calculations.
+		 * All of this data needs to also be set for WP_List_Table to be happy
 		 */
 		$this->set_pagination_args(
 			array(
-				//WE have to calculate the total number of items
 				'total_items'	=> $total_items,
-				//WE have to determine how many items to show on a page
 				'per_page'	=> $per_page,
-				//WE have to calculate the total number of pages
 				'total_pages'	=> ceil( $total_items / $per_page ),
-				// Set ordering values if needed (useful for AJAX)
-				'orderby'	=> ! empty( $_REQUEST['orderby'] ) && '' != $_REQUEST['orderby'] ? $_REQUEST['orderby'] : 'title',
+				'orderby'	=> ! empty( $_REQUEST['orderby'] ) && '' != $_REQUEST['orderby'] ? $_REQUEST['orderby'] : 'last_name',
 				'order'		=> ! empty( $_REQUEST['order'] ) && '' != $_REQUEST['order'] ? $_REQUEST['order'] : 'asc'
 			)
 		);
@@ -282,11 +223,11 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Display the table
-	 * Adds a Nonce field and calls parent's display method
+	 * Create the initial Table display
 	 *
-	 * @since 3.1.0
-	 * @access public
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		HTML
 	 */
 	public function display() {
 		
@@ -299,7 +240,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			<input type="hidden" id="order" name="order" value="<?php echo $this->_pagination_args['order']; ?>" />
 			<input type="hidden" id="orderby" name="orderby" value="<?php echo $this->_pagination_args['orderby']; ?>" />
 			<?php
-				wp_nonce_field( 'ajax-custom-list-nonce', '_ajax_custom_list_nonce' );
+				wp_nonce_field( 'pyis-mepr-ltv-nonce', '_pyis_mepr_ltv_nonce' );
 				$this->search_box( sprintf( 'Search %s', ucwords( $this->_args['plural'] ) ), 'ltv_search' );
 				parent::display();
 			?>
@@ -311,14 +252,15 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Handle an incoming ajax request (called from admin-ajax.php)
+	 * Handle all AJAX Requests
 	 *
-	 * @since 3.1.0
-	 * @access public
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		string JSON of all our List Table Elements as HTML
 	 */
 	public function ajax_response() {
 		
-		check_ajax_referer( 'ajax-custom-list-nonce', '_ajax_custom_list_nonce' );
+		check_ajax_referer( 'pyis-mepr-ltv-nonce', '_pyis_mepr_ltv_nonce' );
 
 		$this->prepare_items();
 
@@ -361,7 +303,14 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		
 	}
 	
-	public function query() {
+	/**
+	 * Handles the actual Query
+	 * 
+	 * @acess		private
+	 * @since		1.0.0
+	 * @return		array Array of (modified) WP_User Objects
+	 */
+	private function query() {
 		
 		global $wpdb;
 		
@@ -470,7 +419,11 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	
 	/**
 	 * Array Map Callback needs to be a Class Method to prevent Function Redeclaration Errors
+	 * 
 	 * @param		array $array Input Array
+	 *                   
+	 * @access		public
+	 * @since		1.0.0
 	 * @return		array Extract out the inner Array's only value
 	 */
 	public function extract_user_id( $array ) {
@@ -533,13 +486,13 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		$order = ( ! empty( $_REQUEST['order'] ) ) ? $_REQUEST['order'] : 'asc';
 		
 		if ( $a->ltv == 0 && $b->ltv !== 0 ) {
-			$result = -1;
-		}
-		else if ( $a->ltv !== 0 && $b->ltv == 0 ) {
 			$result = 1;
 		}
+		else if ( $a->ltv !== 0 && $b->ltv == 0 ) {
+			$result = -1;
+		}
 		else {
-			$result = ( $a->ltv > $b->ltv ) ? 1 : -1;
+			$result = ( $a->ltv > $b->ltv ) ? -1 : 1;
 		}
 		
 		if ( $order == 'asc' ) {
@@ -551,6 +504,13 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		
 	}
 	
+	/**
+	 * Include our JavaScript only when the List Table exists
+	 * 
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		void
+	 */
 	public function _js_vars() {
 		
 		wp_enqueue_script( PYIS_MEPR_LTV_ID . '-admin' );

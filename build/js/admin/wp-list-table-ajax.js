@@ -6,7 +6,10 @@
 	var pyisAjaxListTable = {
 		
 		/**
-		 * [[Description]]
+		 * Attach Events to the List Table for controling the Query
+		 * 
+		 * @since		1.0.0
+		 * @return		void
 		 */
 		init: function() {
 
@@ -63,12 +66,16 @@
 		},
 		
 		/**
-		 * [[Description]]
-		 * @param {object} data [[Description]]
+		 * Update the List Table via AJAX
+		 * 
+		 * @param		{object} data Data Object to send via AJAX
+		 *                       
+		 * @since		1.0.0
+		 * @return		void
 		 */
 		update: function( data ) {
 			
-			data._ajax_nonce = $( '#_ajax_custom_list_nonce' ).val();
+			data._ajax_nonce = $( '#_pyis_mepr_ltv_nonce' ).val();
 			data.action = 'pyis_mepr_ltv_list';
 			
 			$.ajax( {
@@ -113,10 +120,13 @@
 		},
 		
 		/**
-		 * [[Description]]
-		 * @param   {string}   query    [[Description]]
-		 * @param   {[[Type]]} variable [[Description]]
-		 * @returns {boolean}  [[Description]]
+		 * Grab Query Parameters from the clicked-on Element
+		 * 
+		 * @param		{string}         query    URL
+		 * @param 		{string}         variable Parameter we're checking
+		 *                                    
+		 * @since		1.0.0
+		 * @returns 	{string|boolean} Value on success, false on failure
 		 */
 		_query: function( query, variable ) {
 
