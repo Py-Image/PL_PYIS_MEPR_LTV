@@ -47,9 +47,9 @@
 
 				// Wait a bit to ensure the user is done typing before actually sending data
 				window.clearTimeout( timer );
-				timer = window.setTimeout(function() {
+				timer = window.setTimeout( function() {
 					pyisAjaxListTable.update( data );
-				}, delay);
+				}, delay );
 				
 			} );
 			
@@ -61,7 +61,7 @@
 		 */
 		update: function( data ) {
 			
-			data._ajax_nonce = $('#_ajax_custom_list_nonce').val();
+			data._ajax_nonce = $( '#_ajax_custom_list_nonce' ).val();
 			data.action = 'pyis_mepr_ltv_list';
 			
 			$.ajax( {
@@ -72,29 +72,35 @@
 
 					// WP_List_Table::ajax_response() returns json
 					var response = $.parseJSON( response );
+					
+					console.log( response );
 
 					// Add the requested rows
 					if ( response.rows.length ) {
-						$('#the-list').html( response.rows );
+						$( '#the-list' ).html( response.rows );
 					}
 					
 					// Update column headers for sorting
 					if ( response.column_headers.length ) {
-						$('thead tr, tfoot tr').html( response.column_headers );
+						$( 'thead tr, tfoot tr' ).html( response.column_headers );
 					}
 					
 					// Update pagination for navigation
 					if ( response.pagination.bottom.length ) {
-						$('.tablenav.top .tablenav-pages').html( $(response.pagination.top).html() );
+						$( '.tablenav.top .tablenav-pages' ).html( $( response.pagination.top ).html() );
 					}
 					
 					if ( response.pagination.top.length ) {
-						$('.tablenav.bottom .tablenav-pages').html( $(response.pagination.bottom).html() );
+						$( '.tablenav.bottom .tablenav-pages' ).html( $( response.pagination.bottom ).html() );
 					}
 
 					// Init back our event handlers
 					pyisAjaxListTable.init();
 					
+				},
+				error : function( request, status, error ) {
+					console.error( request.responseText );
+					console.error( error );
 				}
 				
 			} );

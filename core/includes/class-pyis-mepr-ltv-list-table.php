@@ -267,6 +267,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			<input type="hidden" id="order" name="order" value="' . $this->_pagination_args['order'] . '" />
 			<input type="hidden" id="orderby" name="orderby" value="' . $this->_pagination_args['orderby'] . '" />
 			<?php
+				wp_nonce_field( 'ajax-custom-list-nonce', '_ajax_custom_list_nonce' );
 				$this->search_box( sprintf( 'Search %s', ucwords( $this->_args['plural'] ) ), 'ltv_search' );
 				parent::display();
 			?>
@@ -285,7 +286,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 */
 	public function ajax_response() {
 
-		check_ajax_referer( 'ajax-custom-list-nonce', '_ajax_custom_list_nonce' );
+		//check_ajax_referer( 'ajax-custom-list-nonce', '_ajax_custom_list_nonce' );
 
 		$this->prepare_items();
 
@@ -323,6 +324,8 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			$response['total_pages'] = $total_pages;
 			$response['total_pages_i18n'] = number_format_i18n( $total_pages );
 		}
+		
+		var_dump( json_encode( $response ) );
 
 		die( json_encode( $response ) );
 		
@@ -467,6 +470,12 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		if ( $object->status !== 'complete' ) return false;
 			
 		return true;
+		
+	}
+	
+	public function _js_vars() {
+		
+		wp_enqueue_script( PYIS_MEPR_LTV_ID . '-admin' );
 		
 	}
 
