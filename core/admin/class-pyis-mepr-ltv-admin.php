@@ -7,7 +7,9 @@
  * @package PYIS_MEPR_LTV
  * @subpackage PYIS_MEPR_LTV/core/admin
  */
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 defined( 'ABSPATH' ) || die();
 
 class PYIS_MEPR_LTV_Admin {
@@ -18,8 +20,6 @@ class PYIS_MEPR_LTV_Admin {
 	 * @since 1.0.0
 	 */
 	function __construct() {
-		
-		$this->require_necessities();
 		
 		add_action( 'admin_menu', array( $this, 'add_submenu_page' ) );
 		
@@ -60,12 +60,18 @@ class PYIS_MEPR_LTV_Admin {
 	 */
 	public function page_content() {
 		
+		// Prevent loading the PHP Error hiding anywhere we don't want it
+		$this->require_necessities();
+		
 		$table = new PYIS_MEPR_LTV_List_Table();
 		$table->display();
 		
 	}
 	
 	public function pyis_mepr_ltv_ajax_callback() {
+		
+		// Prevent loading the PHP Error hiding anywhere we don't want it
+		$this->require_necessities();
 		
 		$table = new PYIS_MEPR_LTV_List_Table();
 		$table->ajax_reponse();

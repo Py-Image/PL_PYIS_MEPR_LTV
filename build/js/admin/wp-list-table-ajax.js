@@ -1,4 +1,7 @@
 ( function( $ ) {
+	
+	if ( ! location.origin )
+			location.origin = location.protocol + '//' + location.host;
 
 	var pyisAjaxListTable = {
 		
@@ -22,8 +25,10 @@
 				var data = {
 					paged: pyisAjaxListTable._query( query, 'paged' ) || '1',
 					order: pyisAjaxListTable._query( query, 'order' ) || 'asc',
-					orderby: pyisAjaxListTable._query( query, 'orderby' ) || 'title'
+					orderby: pyisAjaxListTable._query( query, 'orderby' ) || 'last_name'
 				};
+				
+				console.log( data );
 				
 				// Update the table
 				pyisAjaxListTable.update( data );
@@ -65,10 +70,12 @@
 			data.action = 'pyis_mepr_ltv_list';
 			
 			$.ajax( {
-				method: 'POST',
-				url: ajaxurl,
+				type: 'POST',
+				url: location.origin + ajaxurl,
 				data: data,
 				success: function( response ) {
+					
+					console.log( response );
 
 					// WP_List_Table::ajax_response() returns json
 					var response = $.parseJSON( response );

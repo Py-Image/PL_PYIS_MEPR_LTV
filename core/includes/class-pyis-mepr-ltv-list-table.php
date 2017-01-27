@@ -13,6 +13,14 @@ defined( 'ABSPATH' ) || die();
 if ( ! class_exists( 'WP_List_Table' ) )
 	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 
+/* Hide notices to avoid AJAX errors
+ * Sometimes the Class throws a notice about 'hook_suffix' being undefined,
+ * which breaks every AJAX call.
+ */
+//error_reporting( ~E_NOTICE );
+// Just defining it like this for now to get around the error.
+$GLOBALS['hook_suffix'] = 'pyis-mepr-ltv';
+
 class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 
 	/**
@@ -285,7 +293,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * @access public
 	 */
 	public function ajax_response() {
-
+/*
 		//check_ajax_referer( 'ajax-custom-list-nonce', '_ajax_custom_list_nonce' );
 
 		$this->prepare_items();
@@ -305,11 +313,11 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		$headers = ob_get_clean();
 
 		ob_start();
-		$this->pagination('top');
+		$this->pagination( 'top' );
 		$pagination_top = ob_get_clean();
 
 		ob_start();
-		$this->pagination('bottom');
+		$this->pagination( 'bottom' );
 		$pagination_bottom = ob_get_clean();
 
 		$response = array( 'rows' => $rows );
@@ -324,10 +332,11 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			$response['total_pages'] = $total_pages;
 			$response['total_pages_i18n'] = number_format_i18n( $total_pages );
 		}
-		
-		var_dump( json_encode( $response ) );
 
 		die( json_encode( $response ) );
+		*/
+		
+		echo json_encode( array( 'test' ) );
 		
 	}
 	
@@ -346,14 +355,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		$has_transactions = $wpdb->get_results( $query, ARRAY_N );
 		
 		// We want a flat Array of just the User IDs
-		function extract_user_id( $array ) {
-
-			$reset = reset( $array );
-			
-			return $reset;
-			
-		}
-		$has_transactions = array_map( 'extract_user_id', $has_transactions );
+		$has_transactions = array_map( array( $this,  'extract_user_id' ), $has_transactions );
 		
 		$args = array (
             'order' => ( isset( $_GET['order'] ) ) ? strtoupper( $_GET['order'] ) : 'ASC',
@@ -435,6 +437,19 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	
 		return $results;
 		
+	}
+	
+	/**
+	 * Array Map Callback needs to be a Class Method to prevent Function Redeclaration Errors
+	 * @param		array $array Input Array
+	 * @return		array Extract out the inner Array's only value
+	 */
+	public function extract_user_id( $array ) {
+
+		$reset = reset( $array );
+
+		return $reset;
+
 	}
 	
 	/**
