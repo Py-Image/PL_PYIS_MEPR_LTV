@@ -17,18 +17,26 @@
 				delay = 500;
 
 			// Pagination links, sortable link
-			$( '.tablenav-pages a, .manage-column.sortable a, .manage-column.sorted a' ).on( 'click', function( event ) {
+			$( '.tablenav-pages a, .manage-column.sortable a, .manage-column.sorted a, .search-box input[type="submit"]' ).on( 'click', function( event ) {
 
 				event.preventDefault();
+				
+				if ( typeof this.search !== 'undefined' ) {
 
-				// Grab variables from the URL
-				var query = this.search.substring( 1 );
+					// Grab variables from the URL
+					var query = this.search.substring( 1 );
+					
+				}
+				else {
+					var query = '';
+				}
 
 				// Get the value for each variable
 				var data = {
 					paged: pyisAjaxListTable._query( query, 'paged' ) || $( 'input[name="paged"]' ).val(),
 					order: pyisAjaxListTable._query( query, 'order' ) || $( 'input[name="order"]' ).val(),
 					orderby: pyisAjaxListTable._query( query, 'orderby' ) || $( 'input[name="orderby"]' ).val(),
+					search: pyisAjaxListTable._query( query, 's' ) || $( '.search-box input[name="s"]' ).val(),
 				};
 
 				$( 'input[name="paged"]' ).val( data.paged );
@@ -40,6 +48,7 @@
 				urlQuery = pyisAjaxListTable._update_url( urlQuery, 'paged', data.paged );
 				urlQuery = pyisAjaxListTable._update_url( urlQuery, 'order', data.order );
 				urlQuery = pyisAjaxListTable._update_url( urlQuery, 'orderby', data.orderby );
+				urlQuery = pyisAjaxListTable._update_url( urlQuery, 's', data.search );
 				
 				// Allows us to update the URL if the browser supports it.
 				// If not, we still have those hidden inputs as a fallback
@@ -60,9 +69,10 @@
 
 				// This time we fetch the variables in inputs
 				var data = {
-					paged: parseInt( $('input[name="paged"]').val() ) || '1',
-					order: $('input[name="order"]').val() || 'asc',
-					orderby: $('input[name="orderby"]').val() || 'title'
+					paged: parseInt( $( 'input[name="paged"]' ).val() ) || '1',
+					order: $( 'input[name="order"]' ).val() || 'asc',
+					orderby: $( 'input[name="orderby"]' ).val() || 'title',
+					search: $( '.search-box input[name="s"]' ).val() || '',
 				};
 
 				// Wait a bit to ensure the user is done typing before actually sending data
