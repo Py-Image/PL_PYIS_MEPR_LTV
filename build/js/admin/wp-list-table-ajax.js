@@ -36,7 +36,7 @@
 					paged: pyisAjaxListTable._query( query, 'paged' ) || $( 'input[name="paged"]' ).val(),
 					order: pyisAjaxListTable._query( query, 'order' ) || $( 'input[name="order"]' ).val(),
 					orderby: pyisAjaxListTable._query( query, 'orderby' ) || $( 'input[name="orderby"]' ).val(),
-					search: pyisAjaxListTable._query( query, 's' ) || $( '.search-box input[name="s"]' ).val(),
+					s: pyisAjaxListTable._query( query, 's' ) || $( '.search-box input[name="s"]' ).val(),
 				};
 
 				$( 'input[name="paged"]' ).val( data.paged );
@@ -48,7 +48,7 @@
 				urlQuery = pyisAjaxListTable._update_url( urlQuery, 'paged', data.paged );
 				urlQuery = pyisAjaxListTable._update_url( urlQuery, 'order', data.order );
 				urlQuery = pyisAjaxListTable._update_url( urlQuery, 'orderby', data.orderby );
-				urlQuery = pyisAjaxListTable._update_url( urlQuery, 's', data.search );
+				urlQuery = pyisAjaxListTable._update_url( urlQuery, 's', data.s );
 				
 				// Allows us to update the URL if the browser supports it.
 				// If not, we still have those hidden inputs as a fallback
@@ -72,7 +72,7 @@
 					paged: parseInt( $( 'input[name="paged"]' ).val() ) || '1',
 					order: $( 'input[name="order"]' ).val() || 'asc',
 					orderby: $( 'input[name="orderby"]' ).val() || 'title',
-					search: $( '.search-box input[name="s"]' ).val() || '',
+					s: $( '.search-box input[name="s"]' ).val() || '',
 				};
 
 				// Wait a bit to ensure the user is done typing before actually sending data

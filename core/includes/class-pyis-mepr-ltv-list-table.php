@@ -53,7 +53,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		switch ( $column_name ) {
 
 			case 'last_name' :
-				return get_user_meta( $item->ID, 'first_name', true ) . ' ' . get_user_meta( $item->ID, 'last_name', true );
+				return $item->first_name . ' ' . $item->$column_name;
 			case 'user_login' :
 			case 'user_email' :
 				return $item->$column_name;
@@ -368,6 +368,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		
 		$orderby = ( isset( $_REQUEST['orderby'] ) ) ? $_REQUEST['orderby'] : 'last_name';
 		
+		// WP can automagically handle ordering my Last Name, which is User Meta, for us.
 		if ( $orderby == 'last_name' ) {
 			$args['meta_key'] = $orderby;
 			$args['orderby'] = 'meta_value';
@@ -400,6 +401,8 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				
 			}
 			
+			$user->first_name = get_user_meta( $user->ID, 'first_name', true );
+			$user->last_name = get_user_meta( $user->ID, 'last_name', true );
 			$user->transactions = $transaction_list;
 			$user->ltv = $ltv;
 			
@@ -410,6 +413,13 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			$_REQUEST['orderby'] == 'ltv' ) {
 			
 			usort( $results, array( $this, 'usort_ltv' ) );
+			
+		}
+		
+		// If we're searching for specific Users
+		if ( ( isset( $_REQUEST['s'] ) ) && ( $_REQUEST['s'] !== '' ) ) {
+			
+			$results = array_filter( $results, array( $this, 'search_users' ) );
 			
 		}
 	
@@ -501,6 +511,31 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		else {
 			return -$result;
 		}
+		
+	}
+	
+	/**
+	 * WP_User_Query isn't as flexible as we need to preform searches on BOTH User Meta and User Data
+	 * 
+	 * @param		object  $user WP_User Object with Transactions and LTV Added
+	 *                                                                
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		boolean Whether to filter out this User or not
+	 */
+	public function search_users( $user ) {
+		
+		if ( isset( $_REQUEST['s'] ) &&
+			( strpos( strtolower( $user->first_name ), strtolower( trim( $_REQUEST['s'] ) ) ) !== false ||
+		    strpos( strtolower( $user->last_name ), strtolower( trim( $_REQUEST['s'] ) ) ) !== false ||
+			strpos( strtolower( $user->user_login ), strtolower( trim( $_REQUEST['s'] ) ) ) !== false ||
+		    strpos( strtolower( $user->user_email ), strtolower( trim( $_REQUEST['s'] ) ) ) !== false ) ) {
+			
+			return true;
+		
+		}
+		
+		return false;
 		
 	}
 	
