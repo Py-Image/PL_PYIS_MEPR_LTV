@@ -187,8 +187,11 @@
 			
 			var separator = url.indexOf( '?' ) !== -1 ? "&" : "?";
 			
-			if ( url.match( re ) ) {
-				url = url.replace(re, '$1' + key + "=" + value + '$2');
+			if ( url.match( re ) && value !== '' ) {
+				url = url.replace( re, '$1' + key + "=" + value + '$2' );
+			}
+			else if ( value == '' ) {
+				url = url.replace( re, '' );
 			}
 			else {
 				url = url + separator + key + "=" + value;
