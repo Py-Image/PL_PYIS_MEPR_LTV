@@ -177,6 +177,15 @@ class PYIS_MEPR_LTV_Admin {
 		
 	}
 	
+	/**
+	 * Localize Strings for JavaScript to use
+	 * 
+	 * @param		array $localization Localization Array
+	 *                                          
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		array Localization Array
+	 */
 	public function localize_javascript_text( $localization ) {
 		
 		$localization['i18n'] = array(
