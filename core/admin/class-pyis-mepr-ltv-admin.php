@@ -7,9 +7,7 @@
  * @package PYIS_MEPR_LTV
  * @subpackage PYIS_MEPR_LTV/core/admin
  */
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
 defined( 'ABSPATH' ) || die();
 
 class PYIS_MEPR_LTV_Admin {
@@ -39,15 +37,37 @@ class PYIS_MEPR_LTV_Admin {
 		
 	}
 	
+	/**
+	 * Include our WP_List_Table Class
+	 * 
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		void
+	 */
 	private function require_necessities() {
 		
 		require_once PYIS_MEPR_LTV_DIR . '/core/includes/class-pyis-mepr-ltv-list-table.php';
 		
 	}
 	
+	/**
+	 * Make our Table Object accessible globally
+	 * 
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		void
+	 */
 	public function global_table() {
 		
-		$this->table = new PYIS_MEPR_LTV_List_Table();
+		global $pagenow;
+		
+		if ( $pagenow == 'admin.php' && 
+		   isset( $_GET['page'] ) &&
+		   $_GET['page'] == 'pyis-mepr-ltv' ) {
+		
+			$this->table = new PYIS_MEPR_LTV_List_Table();
+			
+		}
 		
 	}
 	
