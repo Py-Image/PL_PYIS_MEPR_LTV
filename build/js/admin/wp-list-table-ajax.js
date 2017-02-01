@@ -82,6 +82,14 @@
 				}, delay );
 
 			} );
+			
+			$( '.flush-transients' ).on( 'click', function( event ) {
+				
+				event.preventDefault();
+				
+				pyisAjaxListTable.refresh();
+				
+			} );
 
 		},
 
@@ -198,6 +206,59 @@
 			}
 			
 			return url + hash;
+			
+		},
+		
+		/**
+		 * Clear out the Transient and Update the Table
+		 * 
+		 * @since		1.0.0
+		 * @return		void
+		 */
+		refresh: function() {
+			
+			var data = {
+				_ajax_nonce: $( '#_pyis_mepr_ltv_nonce' ).val(),
+				action: 'pyis_mepr_ltv_flush',
+			};
+			
+			$.ajax( {
+				type: 'POST',
+				url: location.origin + ajaxurl,
+				data: data,
+				success: function( response ) {
+					
+					$( '.transient-expiration' ).html( response.data.expiration );
+
+					// Init back our event handlers
+					pyisAjaxListTable.init();
+
+				},
+				error : function( request, status, error ) {
+					console.error( request.responseText );
+					console.error( error );
+				}
+
+			} );
+			
+			if ( typeof this.search !== 'undefined' ) {
+
+					// Grab variables from the URL
+					var query = this.search.substring( 1 );
+					
+				}
+				else {
+					var query = '';
+				}
+			
+			// Ensure that the current view is preserved
+			data.paged = pyisAjaxListTable._query( query, 'paged' ) || $( 'input[name="paged"]' ).val();
+			data.order = pyisAjaxListTable._query( query, 'order' ) || $( 'input[name="order"]' ).val();
+			data.orderby = pyisAjaxListTable._query( query, 'orderby' ) || $( 'input[name="orderby"]' ).val();
+			data.s = pyisAjaxListTable._query( query, 's' ) || $( '.search-box input[name="s"]' ).val(),
+			
+			// Update using the new data
+			pyisAjaxListTable.update( data );
 			
 		}
 

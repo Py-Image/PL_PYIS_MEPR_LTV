@@ -185,10 +185,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		
 		$this->_column_headers = array( $columns, $hidden, $sortable );
 			
-		if ( ! $data = get_transient( 'pyis_mepr_ltv_data' ) ) {
-			$data = $this->query();
-			set_transient( 'pyis_mepr_ltv_data', $data, WEEK_IN_SECONDS );
-		}
+		$data = $this->get_data();
 		
 		if ( isset( $_REQUEST['orderby'] ) ) {
 			
@@ -324,6 +321,24 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		}
 
 		die( json_encode( $response ) );
+		
+	}
+	
+	/**
+	 * Data grabbing function abstracted out to be accessible directly from the Object
+	 * 
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		array Array of (modified) WP_User Objects
+	 */
+	public function get_data() {
+		
+		if ( ! $data = get_transient( 'pyis_mepr_ltv_data' ) ) {
+			$data = $this->query();
+			set_transient( 'pyis_mepr_ltv_data', $data, WEEK_IN_SECONDS );
+		}
+		
+		return $data;
 		
 	}
 	
