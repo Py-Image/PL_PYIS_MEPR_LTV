@@ -33,11 +33,17 @@
 
 				// Get the value for each variable
 				var data = {
+					event: 'sort',
 					paged: pyisAjaxListTable._query( query, 'paged' ) || $( 'input[name="paged"]' ).val(),
 					order: pyisAjaxListTable._query( query, 'order' ) || $( 'input[name="order"]' ).val(),
 					orderby: pyisAjaxListTable._query( query, 'orderby' ) || $( 'input[name="orderby"]' ).val(),
 					s: pyisAjaxListTable._query( query, 's' ) || $( '.search-box input[name="s"]' ).val(),
 				};
+				
+				// In this case, we send a different event
+				if ( $( this ).parent().hasClass( 'pagination-links' ) ) {
+					data.event = 'paginate';
+				}
 				
 				// Reset to page one if we're intentionally navigating to the first page
 				if ( $( this ).hasClass( 'first-page' ) ) {
@@ -57,6 +63,7 @@
 				// This time we fetch the variables in inputs
 				// Except we always go to Page 1
 				var data = {
+					event: 'search',
 					paged: 1,
 					order: $( 'input[name="order"]' ).val() || 'asc',
 					orderby: $( 'input[name="orderby"]' ).val() || 'title',
@@ -78,6 +85,7 @@
 
 				// This time we fetch the variables in inputs
 				var data = {
+					event: 'typed_page',
 					paged: parseInt( $( this ).val() ) || 1,
 					order: $( 'input[name="order"]' ).val() || 'asc',
 					orderby: $( 'input[name="orderby"]' ).val() || 'title',
@@ -92,14 +100,6 @@
 					
 				}, delay );
 
-			} );
-			
-			$( '.flush-transients' ).on( 'click', function( event ) {
-				
-				event.preventDefault();
-				
-				pyisAjaxListTable.refresh();
-				
 			} );
 
 		},
@@ -139,36 +139,69 @@
 				data: data,
 				success: function( response ) {
 					
-					response = response.data;
+					if ( response.success && 
+						response.hasOwnProperty( 'data' ) ) {
+					
+						response = response.data;
 
-					// Add the requested rows
-					if ( response.rows.length ) {
-						$( '#the-list' ).html( response.rows );
+						// Add the requested rows
+						if ( response.rows.length ) {
+							$( '#the-list' ).html( response.rows );
+						}
+
+						// Update column headers for sorting
+						if ( response.column_headers.length ) {
+							$( 'thead tr, tfoot tr' ).html( response.column_headers );
+						}
+
+						// Update pagination for navigation
+						if ( response.pagination.bottom.length ) {
+							$( '.tablenav.top .tablenav-pages' ).html( $( response.pagination.top ).html() );
+						}
+
+						if ( response.pagination.top.length ) {
+							$( '.tablenav.bottom .tablenav-pages' ).html( $( response.pagination.bottom ).html() );
+						}
+
+						// Init back our event handlers
+						pyisAjaxListTable.init();
+						
 					}
-
-					// Update column headers for sorting
-					if ( response.column_headers.length ) {
-						$( 'thead tr, tfoot tr' ).html( response.column_headers );
-					}
-
-					// Update pagination for navigation
-					if ( response.pagination.bottom.length ) {
-						$( '.tablenav.top .tablenav-pages' ).html( $( response.pagination.top ).html() );
-					}
-
-					if ( response.pagination.top.length ) {
-						$( '.tablenav.bottom .tablenav-pages' ).html( $( response.pagination.bottom ).html() );
-					}
-
-					// Init back our event handlers
-					pyisAjaxListTable.init();
 
 				},
-				error : function( request, status, error ) {
+				error: function( request, status, error ) {
+					
 					console.error( request.responseText );
 					console.error( error );
+					
 				}
 
+			} )
+			.done( function( response ) {
+				
+				if ( response.success && 
+					response.hasOwnProperty( 'data' ) ) {
+					
+					if ( data.event == 'sort' ) {
+					
+						$( '.column-' + data.orderby ).effect( 'highlight', { color : '#DFF2BF' }, 1000 );
+						
+					}
+					else {
+						
+						var $table = $( '.wp-list-table' );
+						
+						// Ensure the highlight can be seen on each row
+						$table.removeClass( 'striped' );
+						
+						$table.find( 'tbody#the-list' ).effect( 'highlight', { color : '#DFF2BF' }, 1000, function() {
+							$table.addClass( 'striped' );
+						} );
+						
+					}
+					
+				}
+				
 			} );
 
 		},
@@ -241,7 +274,12 @@
 		 * @since		1.0.0
 		 * @return		void
 		 */
-		refresh: function() {
+		refresh: function( event ) {
+			
+			var button = event.currentTarget,
+				defaultText = $( button ).val();
+			
+			$( button ).val( pyisMeprLtv.i18n.flushProcessing );
 			
 			var data = {
 				_ajax_nonce: $( '#_pyis_mepr_ltv_nonce' ).val(),
@@ -254,9 +292,14 @@
 				data: data,
 				success: function( response ) {
 					
-					response = response.data;
+					if ( response.success && 
+						response.hasOwnProperty( 'data' ) ) {
 					
-					$( '.transient-expiration' ).html( response.expiration );
+						response = response.data;
+					
+						$( '.transient-expiration' ).html( response.expiration );
+						
+					}
 
 				},
 				error : function( request, status, error ) {
@@ -264,6 +307,27 @@
 					console.error( error );
 				}
 
+			} )
+			.done( function( response ) {
+				
+				if ( response.success === true && 
+					response.hasOwnProperty( 'data' ) ) {
+					
+					$( button ).val( pyisMeprLtv.i18n.flushSuccess );
+					
+					$( '.transient-expiration' ).effect( 'highlight', { color : '#DFF2BF' }, 1000 );
+					
+					setTimeout( function() {
+						$( button ).val( pyisMeprLtv.i18n.flushDefault );
+					}, 1000 );
+					
+				}
+				else {
+					
+					$( button ).val( pyisMeprLtv.i18n.flushError );
+					
+				}
+				
 			} );
 			
 			// Ensure that the current view is preserved
@@ -271,6 +335,7 @@
 			data.order = $( 'input[name="order"]' ).val();
 			data.orderby = $( 'input[name="orderby"]' ).val();
 			data.s = $( '.search-box input[name="s"]' ).val();
+			data.event = 'flush';
 			
 			// Update using the refreshed data
 			pyisAjaxListTable.update( data );
@@ -280,5 +345,19 @@
 	}
 
 	pyisAjaxListTable.init();
+	
+	/**
+	 * This Event needs to be bound outside of the init() function otherwise it will get rebound constantly
+	 * 
+	 * @since		1.0.0
+	 * @return		void
+	 */
+	$( '.flush-transients.button' ).on( 'click', function( event ) {
+
+		event.preventDefault();
+
+		pyisAjaxListTable.refresh( event );
+
+	} );
 
 } )( jQuery );

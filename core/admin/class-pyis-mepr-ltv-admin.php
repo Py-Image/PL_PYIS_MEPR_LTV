@@ -33,6 +33,8 @@ class PYIS_MEPR_LTV_Admin {
 			
 			add_action( 'wp_ajax_pyis_mepr_ltv_flush', array( $this, 'pyis_mepr_ltv_flush_callback' ) );
 			
+			add_filter( 'pyis_mepr_ltv_localize_admin_script', array( $this, 'localize_javascript_text' ) );
+			
 		}
 		
 	}
@@ -145,9 +147,9 @@ class PYIS_MEPR_LTV_Admin {
 		
 		check_ajax_referer( 'pyis-mepr-ltv-nonce', '_pyis_mepr_ltv_nonce' );
 		
-		$delete = delete_transient( 'pyis_mepr_ltv_data' );
+		$deleted = delete_transient( 'pyis_mepr_ltv_data' );
 		
-		if ( $delete ) {
+		if ( $deleted === true ) {
 			
 			// Force a refresh of the data so we can get a new Expiration Datetime
 			$refresh = $this->table->get_data();
@@ -167,9 +169,24 @@ class PYIS_MEPR_LTV_Admin {
 		else {
 			
 			// Something broke
-			wp_send_json_error();
+			wp_send_json_error( array(
+				'deleted' => $deleted,
+			) );
 			
 		}
+		
+	}
+	
+	public function localize_javascript_text( $localization ) {
+		
+		$localization['i18n'] = array(
+			'flushProcessing' => _x( 'Working...', 'Transient Flush in Process Text', PYIS_MEPR_LTV_ID ),
+			'flushSuccess' => _x( 'Done!', 'Transient Successfully Flushed Text', PYIS_MEPR_LTV_ID ),
+			'flushFailure' => _x( 'Failed to Refresh Data', 'Transient Flush Failed Text', PYIS_MEPR_LTV_ID ),
+			'flushDefault' => _x( 'Refresh Table Table', 'Flush Transients Label', PYIS_MEPR_ID ),
+		);
+		
+		return $localization;
 		
 	}
 	

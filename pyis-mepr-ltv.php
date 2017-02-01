@@ -182,7 +182,7 @@ if ( ! class_exists( 'PYIS_MEPR_LTV' ) ) {
 			wp_register_script(
 				PYIS_MEPR_LTV_ID . '-admin',
 				PYIS_MEPR_LTV_URL . 'assets/js/admin.js',
-				array( 'jquery' ),
+				array( 'jquery', 'jquery-effects-core', 'jquery-effects-highlight' ),
 				defined( 'WP_DEBUG' ) && WP_DEBUG ? time() : PYIS_MEPR_LTV_VER,
 				true
 			);

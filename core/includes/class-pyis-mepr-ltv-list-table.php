@@ -611,6 +611,10 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		
 		wp_enqueue_style( PYIS_MEPR_LTV_ID . '-admin' );
 		
+		// Dependencies
+		wp_enqueue_script( 'jquery-effects-core' );
+		wp_enqueue_script( 'jquery-effects-highlight' );
+		
 		wp_enqueue_script( PYIS_MEPR_LTV_ID . '-admin' );
 		
 	}
