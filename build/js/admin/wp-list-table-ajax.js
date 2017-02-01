@@ -54,26 +54,6 @@
 				pyisAjaxListTable.update( data );
 
 			} );
-			
-			// Search submission
-			$( '#pyis-mepr-ltv-table' ).on( 'submit', function( event ) {
-				
-				event.preventDefault();
-				
-				// This time we fetch the variables in inputs
-				// Except we always go to Page 1
-				var data = {
-					event: 'search',
-					paged: 1,
-					order: $( 'input[name="order"]' ).val() || 'asc',
-					orderby: $( 'input[name="orderby"]' ).val() || 'title',
-					s: $( '.search-box input[name="s"]' ).val() || '',
-				};
-				
-				// Update the table
-				pyisAjaxListTable.update( data );
-				
-			} );
 
 			// Page number input
 			$( 'input[name=paged]' ).on( 'keyup', function( event ) {
@@ -344,9 +324,37 @@
 
 	}
 
+	// Bind events for all items that get removed on Table Redraws
 	pyisAjaxListTable.init();
-	
+			
 	/**
+	 * Search for specific Users by Name, Login, or Email
+	 * This Event needs to be bound outside of the init() function otherwise it will get rebound constantly
+	 * 
+	 * @since		1.0.0
+	 * @return		void
+	 */
+	$( '#pyis-mepr-ltv-table' ).on( 'submit', function( event ) {
+
+		event.preventDefault();
+
+		// This time we fetch the variables in inputs
+		// Except we always go to Page 1
+		var data = {
+			event: 'search',
+			paged: 1,
+			order: $( 'input[name="order"]' ).val() || 'asc',
+			orderby: $( 'input[name="orderby"]' ).val() || 'title',
+			s: $( '.search-box input[name="s"]' ).val() || '',
+		};
+
+		// Update the table
+		pyisAjaxListTable.update( data );
+
+	} );
+	
+	/** 
+	 * Clear the Transient Data and refresh the Table
 	 * This Event needs to be bound outside of the init() function otherwise it will get rebound constantly
 	 * 
 	 * @since		1.0.0
