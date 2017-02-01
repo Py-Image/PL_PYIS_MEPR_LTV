@@ -22,6 +22,8 @@ if ( ! class_exists( 'WP_List_Table' ) )
 $GLOBALS['hook_suffix'] = 'pyis-mepr-ltv';
 
 class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
+	
+	public $query = array();
 
 	function __construct() {
 
@@ -182,8 +184,30 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		$sortable = $this->get_sortable_columns();
 		
 		$this->_column_headers = array( $columns, $hidden, $sortable );
+			
+		if ( ! $data = get_transient( 'pyis_mepr_ltv_data' ) ) {
+			$data = $this->query();
+			set_transient( 'pyis_mepr_ltv_data', $data, WEEK_IN_SECONDS );
+		}
 		
-		$data = $this->query();
+		if ( isset( $_REQUEST['orderby'] ) ) {
+			
+			// If we're ordering by LTV
+			if ( $_REQUEST['orderby'] == 'ltv' ) {
+				usort( $data, array( $this, 'usort_numeric' ) );
+			}
+			else {
+				usort( $data, array( $this, 'usort_apha' ) );
+			}
+			
+		}
+		
+		// If we're searching for specific Users
+		if ( ( isset( $_REQUEST['s'] ) ) && ( $_REQUEST['s'] !== '' ) ) {
+			
+			$data = array_filter( $data, array( $this, 'search_users' ) );
+			
+		}
 				
 		/**
 		 * Determine Current Page
@@ -328,9 +352,11 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		$has_transactions = array_map( array( $this,  'extract_user_id' ), $has_transactions );
 		
 		$args = array (
-            'order' => ( isset( $_REQUEST['order'] ) ) ? strtoupper( $_REQUEST['order'] ) : 'ASC',
+            'order' => 'ASC',
+			'meta_key' => 'last_name',
+			'orderby' => 'meta_value',
 			'include' => $has_transactions,
-			'meta_query'     => array(
+			'meta_query' => array(
 				'relation' => 'AND', // Based on $_REQUEST, we tack onto this with successive rules that must all be TRUE
 				array(
 					'relation' => 'OR', // In order to query two Roles with wp_user_query() you need to use a Meta Query. Not very intuitive.
@@ -407,21 +433,6 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			$user->ltv = $ltv;
 			
 		}
-		
-		// If we're ordering by LTV
-		if ( isset( $_REQUEST['orderby'] ) &&
-			$_REQUEST['orderby'] == 'ltv' ) {
-			
-			usort( $results, array( $this, 'usort_ltv' ) );
-			
-		}
-		
-		// If we're searching for specific Users
-		if ( ( isset( $_REQUEST['s'] ) ) && ( $_REQUEST['s'] !== '' ) ) {
-			
-			$results = array_filter( $results, array( $this, 'search_users' ) );
-			
-		}
 	
 		return $results;
 		
@@ -481,7 +492,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	}
 	
 	/**
-	 * Sort the resulting Array of Objects by LTV
+	 * Sort the resulting Array of Objects Numerically
 	 * 
 	 * @param		object  $a WP_User Object with Transactions and LTV added
 	 * @param		object  $b WP_User Object with Transactions and LTV added
@@ -490,20 +501,55 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 * @since		1.0.0
 	 * @return		integer Whether to move forward or backward in the Stack
 	 */
-	public function usort_ltv( $a, $b ) {
+	public function usort_numeric( $a, $b ) {
 		
 		// If no order, default to asc
-		$order = ( ! empty( $_REQUEST['order'] ) ) ? $_REQUEST['order'] : 'asc';
+		$order = ( isset( $_REQUEST['order'] ) && ! empty( $_REQUEST['order'] ) ) ? strtolower( trim( $_REQUEST['order'] ) ) : 'asc';
 		
-		if ( $a->ltv == 0 && $b->ltv !== 0 ) {
+		// Default to LTV
+		$orderby = ( isset( $_REQUEST['orderby'] ) && ! empty( $_REQUEST['orderby'] ) ) ? strtolower( trim( $_REQUEST['orderby'] ) ) : 'ltv';
+		
+		if ( $a->ltv == 0 && $b->$orderby !== 0 ) {
 			$result = 1;
 		}
-		else if ( $a->ltv !== 0 && $b->ltv == 0 ) {
+		else if ( $a->$orderby !== 0 && $b->$orderby == 0 ) {
 			$result = -1;
 		}
-		else {
-			$result = ( $a->ltv > $b->ltv ) ? -1 : 1;
+		else if ( $a->$orderby == $b->$orderby ) {
+			$result = 0;
 		}
+		else {
+			$result = ( $a->$orderby > $b->$orderby ) ? -1 : 1;
+		}
+		
+		if ( $order == 'asc' ) {
+			return $result;
+		}
+		else {
+			return -$result;
+		}
+		
+	}
+	
+	/**
+	 * Sort the resulting Array of Objects Alphabetically
+	 * 
+	 * @param		object  $a WP_User Object with Transactions and LTV added
+	 * @param		object  $b WP_User Object with Transactions and LTV added
+	 *                                                             
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		integer Whether to move forward or backward in the Stack
+	 */
+	public function usort_apha( $a, $b ) {
+		
+		// If no order, default to asc
+		$order = ( isset( $_REQUEST['order'] ) && ! empty( $_REQUEST['order'] ) ) ? strtolower( trim( $_REQUEST['order'] ) ) : 'asc';
+		
+		// Default to Last Name
+		$orderby = ( isset( $_REQUEST['orderby'] ) && ! empty( $_REQUEST['orderby'] ) ) ? strtolower( trim( $_REQUEST['orderby'] ) ) : 'last_name';
+		
+		$result = strcasecmp( $a->$orderby, $b->$orderby );
 		
 		if ( $order == 'asc' ) {
 			return $result;

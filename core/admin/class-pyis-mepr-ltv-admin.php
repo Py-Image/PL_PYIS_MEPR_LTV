@@ -13,6 +13,8 @@ error_reporting(E_ALL);
 defined( 'ABSPATH' ) || die();
 
 class PYIS_MEPR_LTV_Admin {
+	
+	public $table;
 
 	/**
 	 * PYIS_MEPR_LTV_Admin constructor.
@@ -21,6 +23,10 @@ class PYIS_MEPR_LTV_Admin {
 	 */
 	function __construct() {
 		
+		$this->require_necessities();
+		
+		add_action( 'admin_init', array( $this, 'global_table' ) );
+		
 		add_action( 'admin_menu', array( $this, 'add_submenu_page' ) );
 		
 		add_action( 'wp_ajax_pyis_mepr_ltv_list', array( $this, 'pyis_mepr_ltv_ajax_callback' ) );
@@ -28,7 +34,15 @@ class PYIS_MEPR_LTV_Admin {
 	}
 	
 	private function require_necessities() {
+		
 		require_once PYIS_MEPR_LTV_DIR . '/core/includes/class-pyis-mepr-ltv-list-table.php';
+		
+	}
+	
+	public function global_table() {
+		
+		$this->table = new PYIS_MEPR_LTV_List_Table();
+		
 	}
 	
 	/**
@@ -60,21 +74,13 @@ class PYIS_MEPR_LTV_Admin {
 	 */
 	public function page_content() {
 		
-		// Prevent loading the PHP Error hiding anywhere we don't want it
-		$this->require_necessities();
-		
-		$table = new PYIS_MEPR_LTV_List_Table();
-		$table->display();
+		$this->table->display();
 		
 	}
 	
 	public function pyis_mepr_ltv_ajax_callback() {
 		
-		// Prevent loading the PHP Error hiding anywhere we don't want it
-		$this->require_necessities();
-		
-		$table = new PYIS_MEPR_LTV_List_Table();
-		$table->ajax_response();
+		$this->table->ajax_response();
 		
 	}
 	
