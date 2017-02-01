@@ -38,6 +38,11 @@
 					orderby: pyisAjaxListTable._query( query, 'orderby' ) || $( 'input[name="orderby"]' ).val(),
 					s: pyisAjaxListTable._query( query, 's' ) || $( '.search-box input[name="s"]' ).val(),
 				};
+				
+				// Reset to page one if we're searching
+				if ( this.id == 'search-submit' ) {
+					data.paged = 1;
+				}
 
 				$( 'input[name="paged"]' ).val( data.paged );
 				$( 'input[name="order"]' ).val( data.order );
@@ -61,6 +66,8 @@
 
 			// Page number input
 			$( 'input[name=paged]' ).on( 'keyup', function( event ) {
+				
+				console.log( event.which );
 
 				// If user hit enter, we don't want to submit the form
 				if ( event.which == 13 ) {
