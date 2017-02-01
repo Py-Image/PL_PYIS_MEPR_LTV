@@ -225,7 +225,7 @@ class PYIS_MEPR_LTV_Admin {
 	public function date_i18n_timezone( $format = false, $timestamp = false, $timezone = false, $gmt = false ) {
 		
 		if ( ! $format ) {
-			$format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) . ' T';
+			$format = get_option( 'date_format' ) . preg_replace( '/(\S)/', '\\\$1', _x( ' at ', 'Datetime Separator', PYIS_MEPR_ID ) ) . get_option( 'time_format' ) . ' T';
 		}
 		
 		if ( ! $timestamp ) {
