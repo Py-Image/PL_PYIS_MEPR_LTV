@@ -111,9 +111,8 @@
 				url: location.origin + ajaxurl,
 				data: data,
 				success: function( response ) {
-
-					// WP_List_Table::ajax_response() returns json
-					var response = $.parseJSON( response );
+					
+					response = response.data;
 
 					// Add the requested rows
 					if ( response.rows.length ) {
@@ -228,7 +227,9 @@
 				data: data,
 				success: function( response ) {
 					
-					$( '.transient-expiration' ).html( response.data.expiration );
+					response = response.data;
+					
+					$( '.transient-expiration' ).html( response.expiration );
 
 				},
 				error : function( request, status, error ) {

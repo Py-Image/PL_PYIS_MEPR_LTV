@@ -320,7 +320,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			$response['total_pages_i18n'] = number_format_i18n( $total_pages );
 		}
 
-		die( json_encode( $response ) );
+		wp_send_json_success( $response );
 		
 	}
 	
