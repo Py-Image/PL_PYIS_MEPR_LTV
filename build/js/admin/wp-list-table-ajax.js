@@ -17,7 +17,7 @@
 				delay = 500;
 
 			// Pagination links, sortable link
-			$( '.tablenav-pages a, .manage-column.sortable a, .manage-column.sorted a, .search-box input[type="submit"]' ).on( 'click', function( event ) {
+			$( '.tablenav-pages a, .manage-column.sortable a, .manage-column.sorted a' ).on( 'click', function( event ) {
 
 				event.preventDefault();
 				
@@ -39,37 +39,37 @@
 					s: pyisAjaxListTable._query( query, 's' ) || $( '.search-box input[name="s"]' ).val(),
 				};
 				
-				// Reset to page one if we're searching
-				// Also resets it if we're intentionally navigating to the first page
-				if ( this.id == 'search-submit' ||
-				   $( this ).hasClass( 'first-page' ) ) {
+				// Reset to page one if we're intentionally navigating to the first page
+				if ( $( this ).hasClass( 'first-page' ) ) {
 					data.paged = 1;
 				}
-
-				$( 'input[name="paged"]' ).val( data.paged );
-				$( 'input[name="order"]' ).val( data.order );
-				$( 'input[name="orderby"]' ).val( data.orderby );
-
-				var urlQuery = document.location.search;
-				
-				urlQuery = pyisAjaxListTable._update_url( urlQuery, 'paged', data.paged );
-				urlQuery = pyisAjaxListTable._update_url( urlQuery, 'order', data.order );
-				urlQuery = pyisAjaxListTable._update_url( urlQuery, 'orderby', data.orderby );
-				urlQuery = pyisAjaxListTable._update_url( urlQuery, 's', data.s );
-				
-				// Allows us to update the URL if the browser supports it.
-				// If not, we still have those hidden inputs as a fallback
-     			history.replaceState( undefined, undefined, urlQuery );
 
 				// Update the table
 				pyisAjaxListTable.update( data );
 
 			} );
+			
+			// Search submission
+			$( '#pyis-mepr-ltv-table' ).on( 'submit', function( event ) {
+				
+				event.preventDefault();
+				
+				// This time we fetch the variables in inputs
+				// Except we always go to Page 1
+				var data = {
+					paged: 1,
+					order: $( 'input[name="order"]' ).val() || 'asc',
+					orderby: $( 'input[name="orderby"]' ).val() || 'title',
+					s: $( '.search-box input[name="s"]' ).val() || '',
+				};
+				
+				// Update the table
+				pyisAjaxListTable.update( data );
+				
+			} );
 
 			// Page number input
 			$( 'input[name=paged]' ).on( 'keyup', function( event ) {
-				
-				console.log( event.which );
 
 				// If user hit enter, we don't want to submit the form
 				if ( event.which == 13 ) {
@@ -78,7 +78,7 @@
 
 				// This time we fetch the variables in inputs
 				var data = {
-					paged: parseInt( $( 'input[name="paged"]' ).val() ) || '1',
+					paged: parseInt( $( this ).val() ) || 1,
 					order: $( 'input[name="order"]' ).val() || 'asc',
 					orderby: $( 'input[name="orderby"]' ).val() || 'title',
 					s: $( '.search-box input[name="s"]' ).val() || '',
@@ -87,7 +87,9 @@
 				// Wait a bit to ensure the user is done typing before actually sending data
 				window.clearTimeout( timer );
 				timer = window.setTimeout( function() {
+					
 					pyisAjaxListTable.update( data );
+					
 				}, delay );
 
 			} );
@@ -114,6 +116,22 @@
 
 			data._ajax_nonce = $( '#_pyis_mepr_ltv_nonce' ).val();
 			data.action = 'pyis_mepr_ltv_list';
+			
+			// Define the values of these hidden fields based on the Data so different actions can default to them
+			$( 'input[name="paged"]' ).val( data.paged );
+			$( 'input[name="order"]' ).val( data.order );
+			$( 'input[name="orderby"]' ).val( data.orderby );
+			
+			var urlQuery = document.location.search;
+				
+			urlQuery = pyisAjaxListTable._update_url( urlQuery, 'paged', data.paged );
+			urlQuery = pyisAjaxListTable._update_url( urlQuery, 'order', data.order );
+			urlQuery = pyisAjaxListTable._update_url( urlQuery, 'orderby', data.orderby );
+			urlQuery = pyisAjaxListTable._update_url( urlQuery, 's', data.s );
+
+			// Allows us to update the URL if the browser supports it.
+			// If not, we still have those hidden inputs as a fallback
+			history.replaceState( undefined, undefined, urlQuery );
 
 			$.ajax( {
 				type: 'POST',

@@ -256,7 +256,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		
 		?>
 		
-		<form method="get">
+		<form id="pyis-mepr-ltv-table" method="get">
 			<input type="hidden" name="paged" value="<?php echo isset( $_REQUEST['paged'] ) ? $_REQUEST['paged'] : '1'; ?>" />
 			<input type="hidden" id="order" name="order" value="<?php echo $this->_pagination_args['order']; ?>" />
 			<input type="hidden" id="orderby" name="orderby" value="<?php echo $this->_pagination_args['orderby']; ?>" />
