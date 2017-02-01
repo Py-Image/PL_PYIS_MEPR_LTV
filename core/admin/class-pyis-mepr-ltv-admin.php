@@ -192,7 +192,7 @@ class PYIS_MEPR_LTV_Admin {
 			'flushProcessing' => _x( 'Working...', 'Transient Flush in Process Text', PYIS_MEPR_LTV_ID ),
 			'flushSuccess' => _x( 'Done!', 'Transient Successfully Flushed Text', PYIS_MEPR_LTV_ID ),
 			'flushFailure' => _x( 'Failed to Refresh Data', 'Transient Flush Failed Text', PYIS_MEPR_LTV_ID ),
-			'flushDefault' => _x( 'Refresh Table Table', 'Flush Transients Label', PYIS_MEPR_ID ),
+			'flushDefault' => _x( 'Refresh Table Data', 'Flush Transients Label', PYIS_MEPR_ID ),
 		);
 		
 		return $localization;
