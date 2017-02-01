@@ -61,9 +61,10 @@ class PYIS_MEPR_LTV_Admin {
 		
 		global $pagenow;
 		
-		if ( $pagenow == 'admin.php' && 
+		if ( ( $pagenow == 'admin.php' && 
 		   isset( $_GET['page'] ) &&
-		   $_GET['page'] == 'pyis-mepr-ltv' ) {
+		   $_GET['page'] == 'pyis-mepr-ltv' ) ||
+		   $pagenow == 'admin-ajax.php' ) {
 		
 			$this->table = new PYIS_MEPR_LTV_List_Table();
 			
