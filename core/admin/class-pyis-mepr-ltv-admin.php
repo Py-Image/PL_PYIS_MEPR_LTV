@@ -103,21 +103,31 @@ class PYIS_MEPR_LTV_Admin {
 	 */
 	public function page_content() {
 		
-		$this->table->display();
-		
-		$expiration = get_option( '_transient_timeout_pyis_mepr_ltv_data' );
-			
-		// date_i18n() doesn't support Timezones and I don't know why
-		// Even if you generate a Timezone-appropriate Timestamp, it converts it to UTC
-		$expiration = $this->date_i18n_timezone( false, $expiration );
-		
 		?>
 
-		<label>
-			<input type="button" class="flush-transients button button-primary" value="<?php echo _x( 'Refresh Table Data', 'Flush Transients Label', PYIS_MEPR_LTV_ID ); ?>" /> <br />
-			<?php echo _x( 'Table data will refresh automatically on: ', 'Transient Expiration Date Label', PYIS_MEPR_LTV_ID ); ?>
-			<span class="transient-expiration"><?php echo $expiration; ?></span>
-		</label>
+		<div class="wrap">
+
+			<h1><?php echo get_admin_page_title(); ?></h1>
+
+			<?php
+
+			$this->table->display();
+
+			$expiration = get_option( '_transient_timeout_pyis_mepr_ltv_data' );
+
+			// date_i18n() doesn't support Timezones and I don't know why
+			// Even if you generate a Timezone-appropriate Timestamp, it converts it to UTC
+			$expiration = $this->date_i18n_timezone( false, $expiration );
+
+			?>
+
+			<label>
+				<input type="button" class="flush-transients button button-primary" value="<?php echo _x( 'Refresh Table Data', 'Flush Transients Label', PYIS_MEPR_LTV_ID ); ?>" /> <br />
+				<?php echo _x( 'Table data will refresh automatically on: ', 'Transient Expiration Date Label', PYIS_MEPR_LTV_ID ); ?>
+				<span class="transient-expiration"><?php echo $expiration; ?></span>
+			</label>
+			
+		</div>
 
 		<?php
 		
