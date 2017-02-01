@@ -230,9 +230,6 @@
 					
 					$( '.transient-expiration' ).html( response.data.expiration );
 
-					// Init back our event handlers
-					pyisAjaxListTable.init();
-
 				},
 				error : function( request, status, error ) {
 					console.error( request.responseText );
@@ -241,23 +238,13 @@
 
 			} );
 			
-			if ( typeof this.search !== 'undefined' ) {
-
-					// Grab variables from the URL
-					var query = this.search.substring( 1 );
-					
-				}
-				else {
-					var query = '';
-				}
-			
 			// Ensure that the current view is preserved
-			data.paged = pyisAjaxListTable._query( query, 'paged' ) || $( 'input[name="paged"]' ).val();
-			data.order = pyisAjaxListTable._query( query, 'order' ) || $( 'input[name="order"]' ).val();
-			data.orderby = pyisAjaxListTable._query( query, 'orderby' ) || $( 'input[name="orderby"]' ).val();
-			data.s = pyisAjaxListTable._query( query, 's' ) || $( '.search-box input[name="s"]' ).val(),
+			data.paged = $( 'input[name="paged"]' ).val();
+			data.order = $( 'input[name="order"]' ).val();
+			data.orderby = $( 'input[name="orderby"]' ).val();
+			data.s = $( '.search-box input[name="s"]' ).val();
 			
-			// Update using the new data
+			// Update using the refreshed data
 			pyisAjaxListTable.update( data );
 			
 		}
