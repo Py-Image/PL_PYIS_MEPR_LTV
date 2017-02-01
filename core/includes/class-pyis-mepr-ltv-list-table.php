@@ -233,11 +233,11 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		 */
 		$this->set_pagination_args(
 			array(
-				'total_items'	=> $total_items,
-				'per_page'	=> $per_page,
-				'total_pages'	=> ceil( $total_items / $per_page ),
-				'orderby'	=> ! empty( $_REQUEST['orderby'] ) && '' != $_REQUEST['orderby'] ? $_REQUEST['orderby'] : 'last_name',
-				'order'		=> ! empty( $_REQUEST['order'] ) && '' != $_REQUEST['order'] ? $_REQUEST['order'] : 'asc'
+				'total_items' => $total_items,
+				'per_page' => $per_page,
+				'total_pages' => ceil( $total_items / $per_page ),
+				'orderby' => ! empty( $_REQUEST['orderby'] ) && '' != $_REQUEST['orderby'] ? $_REQUEST['orderby'] : 'last_name',
+				'order' => ! empty( $_REQUEST['order'] ) && '' != $_REQUEST['order'] ? $_REQUEST['order'] : 'asc'
 			)
 		);
 		
@@ -601,13 +601,15 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	}
 	
 	/**
-	 * Include our JavaScript only when the List Table exists
+	 * Include our CSS/JavaScript only when the List Table exists
 	 * 
 	 * @access		public
 	 * @since		1.0.0
 	 * @return		void
 	 */
 	public function _js_vars() {
+		
+		wp_enqueue_style( PYIS_MEPR_LTV_ID . '-admin' );
 		
 		wp_enqueue_script( PYIS_MEPR_LTV_ID . '-admin' );
 		
