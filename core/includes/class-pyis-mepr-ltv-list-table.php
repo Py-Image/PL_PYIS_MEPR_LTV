@@ -284,9 +284,9 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		check_ajax_referer( 'pyis-mepr-ltv-nonce', '_pyis_mepr_ltv_nonce' );
 
 		$this->prepare_items();
-
-		extract( $this->_args );
-		extract( $this->_pagination_args, EXTR_SKIP );
+		
+		$total_items = $this->_pagination_args['total_items'];
+		$total_pages = $this->_pagination_args['total_pages'];
 
 		ob_start();
 		if ( ! empty( $_REQUEST['no_placeholder'] ) )
