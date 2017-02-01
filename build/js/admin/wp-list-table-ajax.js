@@ -40,7 +40,9 @@
 				};
 				
 				// Reset to page one if we're searching
-				if ( this.id == 'search-submit' ) {
+				// Also resets it if we're intentionally navigating to the first page
+				if ( this.id == 'search-submit' ||
+				   $( this ).hasClass( 'first-page' ) ) {
 					data.paged = 1;
 				}
 
