@@ -122,6 +122,8 @@ class PYIS_MEPR_LTV_Admin {
 	 */
 	public function pyis_mepr_ltv_flush_callback() {
 		
+		check_ajax_referer( 'pyis-mepr-ltv-nonce', '_pyis_mepr_ltv_nonce' );
+		
 		$delete = delete_transient( 'pyis_mepr_ltv_data' );
 		
 		if ( $delete ) {
