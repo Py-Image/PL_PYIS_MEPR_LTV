@@ -60,6 +60,8 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			case 'user_email' :
 				return $item->$column_name;
 			case 'user_registered' :
+			case 'last_billed' :
+			case 'next_billed' :
 				return date_i18n( get_option( 'date_format' ), strtotime( $item->$column_name ) );
 			case 'transactions' :
 				
@@ -106,9 +108,11 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		return $columns = array(
 			'last_name' => _x( 'Full Name', 'Full Name Column Header', PYIS_MEPR_LTV_ID ),
 			'user_login' => _x( 'User Login', 'User Login Column Header', PYIS_MEPR_LTV_ID ),
-			'user_email'	=> _x( 'Email Address', 'Email Address Column Header', PYIS_MEPR_LTV_ID ),
+			'user_email' => _x( 'Email Address', 'Email Address Column Header', PYIS_MEPR_LTV_ID ),
 			'user_registered' => _X( 'Joined', 'Joined Column Header', PYIS_MEPR_LTV_ID ),
-			'transactions'	=> _x( 'Completed Transactions', 'Completed Transactions Column Header', PYIS_MEPR_LTV_ID ),
+			'transactions' => _x( 'Completed Transactions', 'Completed Transactions Column Header', PYIS_MEPR_LTV_ID ),
+			'last_billed' => _x( 'Last Billed', 'Last Billed Column Header', PYIS_MEPR_LTV_ID ),
+			'next_billed' => _x( 'Next Billed', 'Next Billed Column Header', PYIS_MEPR_LTV_ID ),
 			'ltv' => _x( 'LTV', 'LTV Column Header', PYIS_MEPR_LTV_ID ),
 		);
 		
@@ -135,6 +139,8 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			'user_login',
 			'user_email',
 			'user_registered',
+			'last_billed',
+			'next_billed',
 			'ltv',
 		);
 		
@@ -197,7 +203,9 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			if ( $_REQUEST['orderby'] == 'ltv' ) {
 				usort( $data, array( $this, 'usort_numeric' ) );
 			}
-			else if ( $_REQUEST['orderby'] == 'user_registered' ) { // If we're ordering by a Date
+			else if ( $_REQUEST['orderby'] == 'user_registered' ||
+					$_REQUEST['orderby'] == 'last_billed' ||
+					$_REQUEST['orderby'] == 'next_billed' ) { // If we're ordering by a Date
 				usort( $data, array( $this, 'usort_date' ) );
 			}
 			else {
@@ -436,6 +444,8 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			
 			$transaction_list = array();
 			$ltv = 0;
+			$last_billed = '1970-01-01';
+			$next_billed = '1970-01-01'; // Unix Epoch
 			foreach ( $transactions as $transaction ) {
 				
 				if ( ! isset( $transaction_list[ $transaction->rec->product_id ] ) ) {
@@ -446,6 +456,16 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				
 				$transaction_list[ $transaction->rec->product_id ]['transactions'][ $transaction->rec->id ] = $transaction->rec->trans_num;
 				
+				$created_at = date_i18n( 'Y-m-d', strtotime( $transaction->rec->created_at ) );
+				if ( $created_at > $last_billed ) {
+					$last_billed = $created_at;
+				}
+				
+				$expires_at = date_i18n( 'Y-m-d', strtotime( $transaction->rec->expires_at ) );
+				if ( $expires_at > $next_billed ) {
+					$next_billed = $expires_at;
+				}
+				
 				$ltv += $transaction->rec->total;
 				
 			}
@@ -453,6 +473,8 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			$user->first_name = get_user_meta( $user->ID, 'first_name', true );
 			$user->last_name = get_user_meta( $user->ID, 'last_name', true );
 			$user->transactions = $transaction_list;
+			$user->last_billed = $last_billed;
+			$user->next_billed = $next_billed;
 			$user->ltv = $ltv;
 			
 		}
