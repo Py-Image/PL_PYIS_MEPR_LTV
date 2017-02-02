@@ -59,6 +59,8 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			case 'user_login' :
 			case 'user_email' :
 				return $item->$column_name;
+			case 'user_registered' :
+				return date_i18n( get_option( 'date_format' ), strtotime( $item->$column_name ) );
 			case 'transactions' :
 				
 				echo '<ul style="margin-top:0">';
@@ -105,6 +107,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			'last_name' => _x( 'Full Name', 'Full Name Column Header', PYIS_MEPR_LTV_ID ),
 			'user_login' => _x( 'User Login', 'User Login Column Header', PYIS_MEPR_LTV_ID ),
 			'user_email'	=> _x( 'Email Address', 'Email Address Column Header', PYIS_MEPR_LTV_ID ),
+			'user_registered' => _X( 'Joined', 'Joined Column Header', PYIS_MEPR_LTV_ID ),
 			'transactions'	=> _x( 'Completed Transactions', 'Completed Transactions Column Header', PYIS_MEPR_LTV_ID ),
 			'ltv' => _x( 'LTV', 'LTV Column Header', PYIS_MEPR_LTV_ID ),
 		);
@@ -131,6 +134,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			'last_name',
 			'user_login',
 			'user_email',
+			'user_registered',
 			'ltv',
 		);
 		
@@ -192,6 +196,9 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			// If we're ordering by LTV
 			if ( $_REQUEST['orderby'] == 'ltv' ) {
 				usort( $data, array( $this, 'usort_numeric' ) );
+			}
+			else if ( $_REQUEST['orderby'] == 'user_registered' ) { // If we're ordering by a Date
+				usort( $data, array( $this, 'usort_date' ) );
 			}
 			else {
 				usort( $data, array( $this, 'usort_apha' ) );
@@ -404,6 +411,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				'ID',
 				'user_login',
 				'user_email',
+				'user_registered',
 			),
 		);
 		
@@ -524,7 +532,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		// Default to LTV
 		$orderby = ( isset( $_REQUEST['orderby'] ) && ! empty( $_REQUEST['orderby'] ) ) ? strtolower( trim( $_REQUEST['orderby'] ) ) : 'ltv';
 		
-		if ( $a->ltv == 0 && $b->$orderby !== 0 ) {
+		if ( $a->$orderby == 0 && $b->$orderby !== 0 ) {
 			$result = 1;
 		}
 		else if ( $a->$orderby !== 0 && $b->$orderby == 0 ) {
@@ -565,6 +573,51 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		$orderby = ( isset( $_REQUEST['orderby'] ) && ! empty( $_REQUEST['orderby'] ) ) ? strtolower( trim( $_REQUEST['orderby'] ) ) : 'last_name';
 		
 		$result = strcasecmp( $a->$orderby, $b->$orderby );
+		
+		if ( $order == 'asc' ) {
+			return $result;
+		}
+		else {
+			return -$result;
+		}
+		
+	}
+	
+	/**
+	 * Sort the resulting Array of Objects by Date
+	 * 
+	 * @param		object  $a WP_User Object with Transactions and LTV added
+	 * @param		object  $b WP_User Object with Transactions and LTV added
+	 *                                                             
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		integer Whether to move forward or backward in the Stack
+	 */
+	public function usort_date( $a, $b ) {
+		
+		// If no order, default to asc
+		$order = ( isset( $_REQUEST['order'] ) && ! empty( $_REQUEST['order'] ) ) ? strtolower( trim( $_REQUEST['order'] ) ) : 'asc';
+		
+		// Default to Registration Date
+		$orderby = ( isset( $_REQUEST['orderby'] ) && ! empty( $_REQUEST['orderby'] ) ) ? strtolower( trim( $_REQUEST['orderby'] ) ) : 'user_registered';
+		
+		// ISO 8610
+		// https://xkcd.com/1179/
+		$a_value = date_i18n( 'Y-m-d', strtotime( $a->$orderby ) );
+		$b_value = date_i18n( 'Y-m-d', strtotime( $b->$orderby ) );
+		
+		if ( $a_value == 0 && $b_value !== 0 ) {
+			$result = 1;
+		}
+		else if ( $a_value !== 0 && $b_value == 0 ) {
+			$result = -1;
+		}
+		else if ( $a_value == $b_value ) {
+			$result = 0;
+		}
+		else {
+			$result = ( $a_value > $b_value ) ? -1 : 1;
+		}
 		
 		if ( $order == 'asc' ) {
 			return $result;
