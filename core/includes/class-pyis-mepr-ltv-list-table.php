@@ -456,12 +456,12 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				
 				$transaction_list[ $transaction->rec->product_id ]['transactions'][ $transaction->rec->id ] = $transaction->rec->trans_num;
 				
-				$created_at = date_i18n( 'Y-m-d', strtotime( $transaction->rec->created_at ) );
+				$created_at = date( 'Y-m-d', strtotime( $transaction->rec->created_at ) );
 				if ( $created_at > $last_billed ) {
 					$last_billed = $created_at;
 				}
 				
-				$expires_at = date_i18n( 'Y-m-d', strtotime( $transaction->rec->expires_at ) );
+				$expires_at = date( 'Y-m-d', strtotime( $transaction->rec->expires_at ) );
 				if ( $expires_at > $next_billed ) {
 					$next_billed = $expires_at;
 				}
@@ -625,8 +625,8 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		
 		// ISO 8610
 		// https://xkcd.com/1179/
-		$a_value = date_i18n( 'Y-m-d', strtotime( $a->$orderby ) );
-		$b_value = date_i18n( 'Y-m-d', strtotime( $b->$orderby ) );
+		$a_value = date( 'Y-m-d', strtotime( $a->$orderby ) );
+		$b_value = date( 'Y-m-d', strtotime( $b->$orderby ) );
 		
 		if ( $a_value == 0 && $b_value !== 0 ) {
 			$result = 1;
