@@ -14,29 +14,54 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: core/admin/class-pyis-mepr-ltv-admin.php:125
+#: core/admin/class-pyis-mepr-ltv-admin.php:127
 msgctxt "Flush Transients Label"
 msgid "Refresh Table Data"
 msgstr ""
 
-#: core/admin/class-pyis-mepr-ltv-admin.php:126
+#: core/admin/class-pyis-mepr-ltv-admin.php:128
 msgctxt "Transient Expiration Date Label"
 msgid "Table data will refresh automatically on: "
 msgstr ""
 
-#: core/admin/class-pyis-mepr-ltv-admin.php:202
+#: core/admin/class-pyis-mepr-ltv-admin.php:204
 msgctxt "Transient Flush in Process Text"
 msgid "Working..."
 msgstr ""
 
-#: core/admin/class-pyis-mepr-ltv-admin.php:203
+#: core/admin/class-pyis-mepr-ltv-admin.php:205
 msgctxt "Transient Successfully Flushed Text"
 msgid "Done!"
 msgstr ""
 
-#: core/admin/class-pyis-mepr-ltv-admin.php:204
+#: core/admin/class-pyis-mepr-ltv-admin.php:206
 msgctxt "Transient Flush Failed Text"
 msgid "Failed to Refresh Data"
+msgstr ""
+
+#: core/admin/class-pyis-mepr-ltv-admin.php:228
+msgctxt "How to Use Help Tab Title"
+msgid "How to Use"
+msgstr ""
+
+#: core/admin/class-pyis-mepr-ltv-admin.php:229
+msgctxt "How to Use Help Tab Text"
+msgid "This page operates similarly to most Tables in the WordPress Admin, but it live-refreshes with any changes you make! You can sort columns and search for users without loading a whole new page. The URL in your address bar still updates accordingly in case you ever need to link back to a specific result. Note: The \"Full Name\" Column sorts by Last Name."
+msgstr ""
+
+#: core/admin/class-pyis-mepr-ltv-admin.php:234
+msgctxt "Refresh Table Data Help Tab Title"
+msgid "Refresh Table Data"
+msgstr ""
+
+#: core/admin/class-pyis-mepr-ltv-admin.php:235
+msgctxt "Refresh Table Data Help Tab Text"
+msgid "MemberPress doesn't play well with the global <code>$wpdb</code> object, so the table's data is cached for a week for performance reasons. If this data needs to be manually flushed, click the \"Refresh Table Data\" button at the bottom of the screen. Doing so will not lose your page, sorting, or search terms and the table will refresh automatically. Once it is finished, it will flash green."
+msgstr ""
+
+#: core/admin/class-pyis-mepr-ltv-admin.php:239
+msgctxt "Issue Tracker Link Text"
+msgid "Report an Issue"
 msgstr ""
 
 #: core/includes/class-pyis-mepr-ltv-list-table.php:35
@@ -49,42 +74,42 @@ msgctxt "Plural Name of Listed Record"
 msgid "Users"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:75
-msgctxt "Edit/View Transaction Link Title"
-msgid "Edit/View Transaction"
+#: core/includes/class-pyis-mepr-ltv-list-table.php:68
+msgctxt "Transactions Link Text"
+msgid "%s's Completed Transactions"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:109
+#: core/includes/class-pyis-mepr-ltv-list-table.php:95
 msgctxt "Full Name Column Header"
 msgid "Full Name"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:110
+#: core/includes/class-pyis-mepr-ltv-list-table.php:96
 msgctxt "User Login Column Header"
 msgid "User Login"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:111
+#: core/includes/class-pyis-mepr-ltv-list-table.php:97
 msgctxt "Email Address Column Header"
 msgid "Email Address"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:113
+#: core/includes/class-pyis-mepr-ltv-list-table.php:99
 msgctxt "Completed Transactions Column Header"
 msgid "Completed Transactions"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:114
+#: core/includes/class-pyis-mepr-ltv-list-table.php:100
 msgctxt "Last Billed Column Header"
 msgid "Last Billed"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:115
+#: core/includes/class-pyis-mepr-ltv-list-table.php:101
 msgctxt "Next Billed Column Header"
 msgid "Next Billed"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:116
+#: core/includes/class-pyis-mepr-ltv-list-table.php:102
 msgctxt "LTV Column Header"
 msgid "LTV"
 msgstr ""
