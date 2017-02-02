@@ -35,6 +35,8 @@ class PYIS_MEPR_LTV_Admin {
 			
 			add_filter( 'pyis_mepr_ltv_localize_admin_script', array( $this, 'localize_javascript_text' ) );
 			
+			add_action( 'load-memberpress_page_pyis-mepr-ltv', array( $this, 'help_tab' ) );
+			
 		}
 		
 	}
@@ -206,6 +208,36 @@ class PYIS_MEPR_LTV_Admin {
 		);
 		
 		return $localization;
+		
+	}
+	
+	/**
+	 * Add Help Tab on our Page
+	 * 
+	 * @access		public
+	 * @since		1.0.0
+	 * @return		void
+	 */
+	public function help_tab() {
+		
+		// We're only hooking to our page, so we're fine without checking
+		$screen = get_current_screen();
+		
+		$screen->add_help_tab( array(
+			'id'       => 'pyis-mepr-ltv-how-to',
+			'title'    => _x( 'How to Use', 'How to Use Help Tab Title', PYIS_MEPR_LTV_ID ),
+			'content'  => _x( 'This page operates similarly to most Tables in the WordPress Admin, but it live-refreshes with any changes you make! You can sort columns and search for users without loading a whole new page. The URL in your address bar still updates accordingly in case you ever need to link back to a specific result. Note: The "Full Name" Column sorts by Last Name.', 'How to Use Help Tab Text', PYIS_MEPR_LTV_ID ),
+		) );
+		
+		$screen->add_help_tab( array(
+			'id'       => 'pyis-mepr-ltv-flush-transient',
+			'title'    => _x( 'Refresh Table Data', 'Refresh Table Data Help Tab Title', PYIS_MEPR_LTV_ID ),
+			'content'  => _x( "MemberPress doesn't play well with the global <code>\$wpdb</code> object, so the table's data is cached for a week for performance reasons. If this data needs to be manually flushed, click the \"Refresh Table Data\" button at the bottom of the screen. Doing so will not lose your page, sorting, or search terms and the table will refresh automatically. Once it is finished, it will flash green.", 'Refresh Table Data Help Tab Text', PYIS_MEPR_LTV_ID ),
+		) );
+
+		$screen->set_help_sidebar(
+			'<p><a href="//github.com/realbig/PL_PYIS_MEPR_LTV/issues" target="_blank">' . _x( 'Report an Issue', 'Issue Tracker Link Text', PYIS_MEPR_LTV_ID ) . '</a></p>'
+		);
 		
 	}
 	
