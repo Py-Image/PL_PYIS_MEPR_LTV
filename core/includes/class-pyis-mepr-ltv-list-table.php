@@ -64,24 +64,10 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			case 'next_billed' :
 				return date_i18n( get_option( 'date_format' ), strtotime( $item->$column_name ) );
 			case 'transactions' :
+
+				$link_text = sprintf( _x( "%s's Completed Transactions", 'Transactions Link Text', PYIS_MEPR_LTV_ID ), $item->first_name . ' ' . $item->last_name );
 				
-				echo '<ul style="margin-top:0">';
-				foreach( $item->$column_name as $product ) {
-					
-					echo '<li>' . $product['name'] . '<ul style="list-style: disc; margin-left: 1.5em;">';
-					
-					foreach ( $product['transactions'] as $transaction_id => $transaction_number ) {
-						echo '<li>';
-							echo '<a href="' . admin_url( 'admin.php?page=memberpress-trans&action=edit&id=' . $transaction_id ) . '" title="' . _x( 'Edit/View Transaction', 'Edit/View Transaction Link Title', PYIS_MEPR_LTV_ID ) . '">' . $transaction_number . '</a>';
-						echo '</li>';
-					}
-					
-					echo '</ul></li>';
-					
-				}
-				echo '</ul>';
-				
-				return false;
+				return '<a href="' . $item->$column_name . '" title="' . $link_text . '">' . $link_text . '</a>';
 				
 			case 'ltv' : 
 				return MeprAppHelper::format_currency( $item->$column_name, true );
@@ -442,20 +428,14 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			
 			$transactions = $this->completed_transactions_by_user_id( $user->ID );
 			
-			$transaction_list = array();
+			$transactions_link = '';
 			$ltv = 0;
 			$last_billed = '1970-01-01'; // Unix Epoch
 			$today = date( 'Y-m-d', current_time( 'timestamp' ) );
 			$next_billed = $today; // We only want the soonest next billed date, so we compare to today.
 			foreach ( $transactions as $transaction ) {
 				
-				if ( ! isset( $transaction_list[ $transaction->rec->product_id ] ) ) {
-				
-					$transaction_list[ $transaction->rec->product_id ]['name'] = get_the_title( $transaction->rec->product_id );
-						
-				}
-				
-				$transaction_list[ $transaction->rec->product_id ]['transactions'][ $transaction->rec->id ] = $transaction->rec->trans_num;
+				$transactions_link = admin_url( 'admin.php?page=memberpress-trans&search=complete&member=' . $user->user_login );
 				
 				$created_at = date( 'Y-m-d', strtotime( $transaction->rec->created_at ) );
 				if ( $created_at > $last_billed ) {
@@ -474,7 +454,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			
 			$user->first_name = get_user_meta( $user->ID, 'first_name', true );
 			$user->last_name = get_user_meta( $user->ID, 'last_name', true );
-			$user->transactions = $transaction_list;
+			$user->transactions = $transactions_link;
 			$user->last_billed = $last_billed;
 			$user->next_billed = $next_billed;
 			$user->ltv = $ltv;
