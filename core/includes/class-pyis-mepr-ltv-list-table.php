@@ -444,8 +444,9 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			
 			$transaction_list = array();
 			$ltv = 0;
-			$last_billed = '1970-01-01';
-			$next_billed = '1970-01-01'; // Unix Epoch
+			$last_billed = '1970-01-01'; // Unix Epoch
+			$today = date( 'Y-m-d', current_time( 'timestamp' ) );
+			$next_billed = $today; // We only want the soonest next billed date, so we compare to today.
 			foreach ( $transactions as $transaction ) {
 				
 				if ( ! isset( $transaction_list[ $transaction->rec->product_id ] ) ) {
@@ -462,7 +463,8 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				}
 				
 				$expires_at = date( 'Y-m-d', strtotime( $transaction->rec->expires_at ) );
-				if ( $expires_at > $next_billed ) {
+				if ( $expires_at > $next_billed && 
+				   $next_billed == $today ) {
 					$next_billed = $expires_at;
 				}
 				
