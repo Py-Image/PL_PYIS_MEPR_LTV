@@ -1,0 +1,95 @@
+# Copyright (C) 2017 PYIS_MEPR_LTV
+# This file is distributed under the same license as the PYIS_MEPR_LTV package.
+msgid ""
+msgstr ""
+"Project-Id-Version: PYIS_MEPR_LTV\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2017-MO-DA HO:MI+ZONE\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: core/admin/class-pyis-mepr-ltv-admin.php:125
+msgctxt "Flush Transients Label"
+msgid "Refresh Table Data"
+msgstr ""
+
+#: core/admin/class-pyis-mepr-ltv-admin.php:126
+msgctxt "Transient Expiration Date Label"
+msgid "Table data will refresh automatically on: "
+msgstr ""
+
+#: core/admin/class-pyis-mepr-ltv-admin.php:202
+msgctxt "Transient Flush in Process Text"
+msgid "Working..."
+msgstr ""
+
+#: core/admin/class-pyis-mepr-ltv-admin.php:203
+msgctxt "Transient Successfully Flushed Text"
+msgid "Done!"
+msgstr ""
+
+#: core/admin/class-pyis-mepr-ltv-admin.php:204
+msgctxt "Transient Flush Failed Text"
+msgid "Failed to Refresh Data"
+msgstr ""
+
+#: core/includes/class-pyis-mepr-ltv-list-table.php:35
+msgctxt "Singular Name of Listed Record"
+msgid "User"
+msgstr ""
+
+#: core/includes/class-pyis-mepr-ltv-list-table.php:36
+msgctxt "Plural Name of Listed Record"
+msgid "Users"
+msgstr ""
+
+#: core/includes/class-pyis-mepr-ltv-list-table.php:75
+msgctxt "Edit/View Transaction Link Title"
+msgid "Edit/View Transaction"
+msgstr ""
+
+#: core/includes/class-pyis-mepr-ltv-list-table.php:109
+msgctxt "Full Name Column Header"
+msgid "Full Name"
+msgstr ""
+
+#: core/includes/class-pyis-mepr-ltv-list-table.php:110
+msgctxt "User Login Column Header"
+msgid "User Login"
+msgstr ""
+
+#: core/includes/class-pyis-mepr-ltv-list-table.php:111
+msgctxt "Email Address Column Header"
+msgid "Email Address"
+msgstr ""
+
+#: core/includes/class-pyis-mepr-ltv-list-table.php:113
+msgctxt "Completed Transactions Column Header"
+msgid "Completed Transactions"
+msgstr ""
+
+#: core/includes/class-pyis-mepr-ltv-list-table.php:114
+msgctxt "Last Billed Column Header"
+msgid "Last Billed"
+msgstr ""
+
+#: core/includes/class-pyis-mepr-ltv-list-table.php:115
+msgctxt "Next Billed Column Header"
+msgid "Next Billed"
+msgstr ""
+
+#: core/includes/class-pyis-mepr-ltv-list-table.php:116
+msgctxt "LTV Column Header"
+msgid "LTV"
+msgstr ""
+
+#: pyis-mepr-ltv.php:69
+msgctxt "Missing Dependency Error"
+msgid "%s requires %s to be installed!"
+msgstr ""

@@ -1,6 +1,6 @@
 {
 	"name": "PYIS_MEPR_LTV",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"main": "gulpfile.js",
 	"dependencies": {},
 	"devDependencies": {
