@@ -442,10 +442,13 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 					$last_billed = $created_at;
 				}
 				
-				$expires_at = date( 'Y-m-d', strtotime( $transaction->rec->expires_at ) );
-				if ( $expires_at > $next_billed && 
-				   $next_billed == $today ) {
-					$next_billed = $expires_at;
+				if ( $next_billed == $today ) {
+				
+					$expires_at = date( 'Y-m-d', strtotime( $transaction->rec->expires_at ) );
+					if ( $expires_at > $next_billed ) {
+						$next_billed = $expires_at;
+					}
+					
 				}
 				
 				$ltv += $transaction->rec->total;
