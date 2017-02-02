@@ -29,6 +29,12 @@ if ( ! class_exists( 'PYIS_MEPR_LTV' ) ) {
 		public $plugin_data;
 		
 		/**
+		 * @var			PYIS_MEPR_LTV $admin_errors Stores all our Admin Errors to fire at once
+		 * @since		1.0.0
+		 */
+		private $admin_errors;
+		
+		/**
 		 * @var			PYIS_MEPR_LTV $admin Admin Settings
 		 * @since		1.0.0
 		 */
@@ -57,6 +63,17 @@ if ( ! class_exists( 'PYIS_MEPR_LTV' ) ) {
 			
 			$this->setup_constants();
 			$this->load_textdomain();
+			
+			if ( ! defined( 'MEPR_VERSION' ) ) {
+				
+				$this->admin_errors[] = sprintf( _x( '%s requires %s to be installed!', 'Missing Dependency Error', EDD_Slack_ID ), '<strong>' . $this->plugin_data['Name'] . '</strong>', '<a href="//www.memberpress.com/" target="_blank"><strong>MemberPress</strong></a>' );
+				
+				if ( ! has_action( 'admin_notices', array( $this, 'admin_errors' ) ) ) {
+					add_action( 'admin_notices', array( $this, 'admin_errors' ) );
+				}
+				
+			}
+			
 			$this->require_necessities();
 			
 			// Register our CSS/JS for the whole plugin
@@ -161,6 +178,25 @@ if ( ! class_exists( 'PYIS_MEPR_LTV' ) ) {
 				
 			}
 			
+		}
+		
+		/**
+		 * Show admin errors.
+		 * 
+		 * @access	  public
+		 * @since	  1.0.0
+		 * @return	  HTML
+		 */
+		public function admin_errors() {
+			?>
+			<div class="error">
+				<?php foreach ( $this->admin_errors as $notice ) : ?>
+					<p>
+						<?php echo $notice; ?>
+					</p>
+				<?php endforeach; ?>
+			</div>
+			<?php
 		}
 		
 		/**
