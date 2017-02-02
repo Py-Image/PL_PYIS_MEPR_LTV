@@ -66,7 +66,7 @@ if ( ! class_exists( 'PYIS_MEPR_LTV' ) ) {
 			
 			if ( ! defined( 'MEPR_VERSION' ) ) {
 				
-				$this->admin_errors[] = sprintf( _x( '%s requires %s to be installed!', 'Missing Dependency Error', EDD_Slack_ID ), '<strong>' . $this->plugin_data['Name'] . '</strong>', '<a href="//www.memberpress.com/" target="_blank"><strong>MemberPress</strong></a>' );
+				$this->admin_errors[] = sprintf( _x( '%s requires %s to be installed!', 'Missing Dependency Error', PYIS_MEPR_LTV_ID ), '<strong>' . $this->plugin_data['Name'] . '</strong>', '<a href="//www.memberpress.com/" target="_blank"><strong>MemberPress</strong></a>' );
 				
 				if ( ! has_action( 'admin_notices', array( $this, 'admin_errors' ) ) ) {
 					add_action( 'admin_notices', array( $this, 'admin_errors' ) );
