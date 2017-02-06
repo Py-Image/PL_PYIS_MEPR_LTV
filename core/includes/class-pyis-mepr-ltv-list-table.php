@@ -62,6 +62,10 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			case 'user_registered' :
 			case 'last_billed' :
 			case 'next_billed' :
+				
+				if ( $item->$column_name == 0 &&
+				   $column_name == 'next_billed' ) return _x( 'Expired', 'No Next Billed Date Text', PYIS_MEPR_LTV_ID );
+				
 				return date_i18n( get_option( 'date_format' ), strtotime( $item->$column_name ) );
 			case 'transactions' :
 
@@ -455,6 +459,10 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				
 			}
 			
+			if ( $next_billed == $today ) {
+				$next_billed = 0; // No Next Billed Date
+			}
+			
 			$user->first_name = get_user_meta( $user->ID, 'first_name', true );
 			$user->last_name = get_user_meta( $user->ID, 'last_name', true );
 			$user->transactions = $transactions_link;
@@ -613,10 +621,10 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 		$a_value = date( 'Y-m-d', strtotime( $a->$orderby ) );
 		$b_value = date( 'Y-m-d', strtotime( $b->$orderby ) );
 		
-		if ( $a_value == 0 && $b_value !== 0 ) {
+		if ( $a->$orderby == 0 && $b->$orderby !== 0 ) {
 			$result = 1;
 		}
-		else if ( $a_value !== 0 && $b_value == 0 ) {
+		else if ( $a->$orderby !== 0 && $b->$orderby == 0 ) {
 			$result = -1;
 		}
 		else if ( $a_value == $b_value ) {
