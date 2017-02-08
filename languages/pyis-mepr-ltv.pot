@@ -75,46 +75,51 @@ msgid "Users"
 msgstr ""
 
 #: core/includes/class-pyis-mepr-ltv-list-table.php:67
+msgctxt "Lifetime Subscription Text"
+msgid "Lifetime"
+msgstr ""
+
+#: core/includes/class-pyis-mepr-ltv-list-table.php:70
 msgctxt "No Next Billed Date Text"
 msgid "Expired"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:72
+#: core/includes/class-pyis-mepr-ltv-list-table.php:75
 msgctxt "Transactions Link Text"
 msgid "%s's Completed Transactions"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:99
+#: core/includes/class-pyis-mepr-ltv-list-table.php:102
 msgctxt "Full Name Column Header"
 msgid "Full Name"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:100
+#: core/includes/class-pyis-mepr-ltv-list-table.php:103
 msgctxt "User Login Column Header"
 msgid "User Login"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:101
+#: core/includes/class-pyis-mepr-ltv-list-table.php:104
 msgctxt "Email Address Column Header"
 msgid "Email Address"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:103
+#: core/includes/class-pyis-mepr-ltv-list-table.php:106
 msgctxt "Completed Transactions Column Header"
 msgid "Completed Transactions"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:104
+#: core/includes/class-pyis-mepr-ltv-list-table.php:107
 msgctxt "Last Billed Column Header"
 msgid "Last Billed"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:105
+#: core/includes/class-pyis-mepr-ltv-list-table.php:108
 msgctxt "Next Billed Column Header"
 msgid "Next Billed"
 msgstr ""
 
-#: core/includes/class-pyis-mepr-ltv-list-table.php:106
+#: core/includes/class-pyis-mepr-ltv-list-table.php:109
 msgctxt "LTV Column Header"
 msgid "LTV"
 msgstr ""
