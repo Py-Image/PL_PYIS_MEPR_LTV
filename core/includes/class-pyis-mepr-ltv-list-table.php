@@ -63,6 +63,9 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			case 'last_billed' :
 			case 'next_billed' :
 				
+				if ( $item->$column_name == -1 &&
+				   $column_name == 'next_billed' ) return _x( 'Lifetime', 'Lifetime Subscription Text', PYIS_MEPR_LTV_ID );
+				
 				if ( $item->$column_name == 0 &&
 				   $column_name == 'next_billed' ) return _x( 'Expired', 'No Next Billed Date Text', PYIS_MEPR_LTV_ID );
 				
@@ -449,7 +452,12 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				if ( $next_billed == $today ) {
 				
 					$expires_at = date( 'Y-m-d', strtotime( $transaction->rec->expires_at ) );
-					if ( $expires_at > $next_billed ) {
+
+					if ( $expires_at == '-0001-11-30' ) { // If says to leave the field blank, but this seemingly random value is what gets saved
+						$next_billed = -1;
+						break; // Lifetime Subscription, stop looping
+					}
+					else if ( $expires_at > $next_billed ) {
 						$next_billed = $expires_at;
 					}
 					
@@ -625,6 +633,12 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			$result = 1;
 		}
 		else if ( $a->$orderby !== 0 && $b->$orderby == 0 ) {
+			$result = -1;
+		}
+		else if ( $a->$orderby == 0 && $b->$orderby == -1 ) {
+			$result = 1;
+		}
+		else if ( $a->$orderby == -1 && $b->$orderby == 0 ) {
 			$result = -1;
 		}
 		else if ( $a_value == $b_value ) {
