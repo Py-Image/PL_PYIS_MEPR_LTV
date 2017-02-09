@@ -78,7 +78,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				$output = ob_get_clean();
 				return $output;
 			case 'user_email' :
-				return $item->$column_name;
+				return '<a href="mailto:' . $item->$column_name . '" title="' . sprintf( _x( 'Email %s', 'Email User', PYIS_MEPR_LTV_ID ), $item->first_name . ' ' . $item->last_name ) . '">' . $item->$column_name . '</a>';
 			case 'user_registered' :
 			case 'last_billed' :
 			case 'next_billed' :
