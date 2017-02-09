@@ -56,7 +56,27 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 
 			case 'last_name' :
 				return $item->first_name . ' ' . $item->$column_name;
-			case 'user_login' :
+			case 'user_login' : 
+				
+				ob_start(); ?>
+				
+				<a href="<?php echo admin_url( 'user-edit.php?user_id=' . $item->ID ); ?>'" title="<?php printf( _x( "%s's User Page", "User's User Page", PYIS_MEPR_LTV_ID ), $item->first_name . ' ' . $item->last_name ); ?>">
+					<?php echo $item->$column_name; ?>
+				</a>
+				<div class="mepr-row-actions">
+					<a href="<?php echo admin_url( 'admin.php?page=memberpress-trans&search=complete&member=' . $item->user_login ); ?>" title="<?php printf( _x( "%s's Completed Transactions", "User's Completed Transactions", PYIS_MEPR_LTV_ID ), $item->first_name . ' ' . $item->last_name ); ?>">
+						<?php echo _x( 'Transactions', 'Completed Transactions Link Text', PYIS_MEPR_LTV_ID ); ?>
+					</a>
+					|
+					<a href="<?php echo admin_url( 'admin.php?page=memberpress-subscriptions&member=' . $item->user_login ); ?>" title="<?php printf( _x( "%s's Subscriptions", "User's Subscriptions", PYIS_MEPR_LTV_ID ), $item->first_name . ' ' . $item->last_name ); ?>">
+						<?php echo _x( 'Subscriptions', 'Subscriptions Link Text', PYIS_MEPR_LTV_ID ); ?>
+					</a>
+				</div>
+
+				<?php 
+				
+				$output = ob_get_clean();
+				return $output;
 			case 'user_email' :
 				return $item->$column_name;
 			case 'user_registered' :
@@ -70,12 +90,6 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				   $column_name == 'next_billed' ) return _x( 'Expired', 'No Next Billed Date Text', PYIS_MEPR_LTV_ID );
 				
 				return date_i18n( get_option( 'date_format' ), strtotime( $item->$column_name ) );
-			case 'transactions' :
-
-				$link_text = sprintf( _x( "%s's Completed Transactions", 'Transactions Link Text', PYIS_MEPR_LTV_ID ), $item->first_name . ' ' . $item->last_name );
-				
-				return '<a href="' . $item->$column_name . '" title="' . $link_text . '">' . $link_text . '</a>';
-				
 			case 'ltv' : 
 				return MeprAppHelper::format_currency( $item->$column_name, true );
 			default :
@@ -103,7 +117,6 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			'user_login' => _x( 'User Login', 'User Login Column Header', PYIS_MEPR_LTV_ID ),
 			'user_email' => _x( 'Email Address', 'Email Address Column Header', PYIS_MEPR_LTV_ID ),
 			'user_registered' => _X( 'Joined', 'Joined Column Header', PYIS_MEPR_LTV_ID ),
-			'transactions' => _x( 'Completed Transactions', 'Completed Transactions Column Header', PYIS_MEPR_LTV_ID ),
 			'last_billed' => _x( 'Last Billed', 'Last Billed Column Header', PYIS_MEPR_LTV_ID ),
 			'next_billed' => _x( 'Next Billed', 'Next Billed Column Header', PYIS_MEPR_LTV_ID ),
 			'ltv' => _x( 'LTV', 'LTV Column Header', PYIS_MEPR_LTV_ID ),
@@ -435,14 +448,11 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			
 			$transactions = $this->completed_transactions_by_user_id( $user->ID );
 			
-			$transactions_link = '';
 			$ltv = 0;
 			$last_billed = '1970-01-01'; // Unix Epoch
 			$today = date( 'Y-m-d', current_time( 'timestamp' ) );
 			$next_billed = $today; // We only want the soonest next billed date, so we compare to today.
 			foreach ( $transactions as $transaction ) {
-				
-				$transactions_link = admin_url( 'admin.php?page=memberpress-trans&search=complete&member=' . $user->user_login );
 				
 				$created_at = date( 'Y-m-d', strtotime( $transaction->rec->created_at ) );
 				if ( $created_at > $last_billed ) {
@@ -453,7 +463,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				
 					$expires_at = date( 'Y-m-d', strtotime( $transaction->rec->expires_at ) );
 
-					if ( $expires_at == '-0001-11-30' ) { // If says to leave the field blank, but this seemingly random value is what gets saved
+					if ( $expires_at == '-0001-11-30' ) { // It says to leave the field blank, but this seemingly random value is what gets saved
 						$next_billed = -1;
 						break; // Lifetime Subscription, stop looping
 					}
@@ -471,9 +481,8 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				$next_billed = 0; // No Next Billed Date
 			}
 			
-			$user->first_name = get_user_meta( $user->ID, 'first_name', true );
-			$user->last_name = get_user_meta( $user->ID, 'last_name', true );
-			$user->transactions = $transactions_link;
+			$user->first_name = trim( get_user_meta( $user->ID, 'first_name', true ) );
+			$user->last_name = trim( get_user_meta( $user->ID, 'last_name', true ) );
 			$user->last_billed = $last_billed;
 			$user->next_billed = $next_billed;
 			$user->ltv = $ltv;

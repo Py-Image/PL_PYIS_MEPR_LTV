@@ -142,6 +142,16 @@
 						if ( response.pagination.top.length ) {
 							$( '.tablenav.bottom .tablenav-pages' ).html( $( response.pagination.bottom ).html() );
 						}
+						
+						// This bit is directly from MemberPress, but we need to reattach the event after recreating the Table
+						$( 'table.wp-list-table tr' ).hover(
+							function( event ) {
+								$( this ).find( '.mepr-row-actions' ).css( 'visibility', 'visible' );
+							},
+							function( event ) {
+								$( this ).find( '.mepr-row-actions' ).css( 'visibility', 'hidden' );
+							}
+						);
 
 						// Init back our event handlers
 						pyisAjaxListTable.init();
