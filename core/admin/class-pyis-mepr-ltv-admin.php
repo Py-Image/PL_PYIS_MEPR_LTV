@@ -116,10 +116,10 @@ class PYIS_MEPR_LTV_Admin {
 			$this->table->display();
 
 			$expiration = get_option( '_transient_timeout_pyis_mepr_ltv_data' );
-
-			// date_i18n() doesn't support Timezones and I don't know why
-			// Even if you generate a Timezone-appropriate Timestamp, it converts it to UTC
-			$expiration = $this->date_i18n_timezone( false, $expiration );
+		
+			$format = get_option( 'date_format', 'F j, Y' ) . preg_replace( '/(\S)/', '\\\$1', _x( ' at ', 'Datetime Separator', PYIS_MEPR_ID ) ) . get_option( 'time_format', 'g:i a' ) . ' T';
+			
+			$expiration = date_i18n( $format, $expiration, true );
 
 			?>
 
@@ -169,9 +169,9 @@ class PYIS_MEPR_LTV_Admin {
 			// The Transient has been reset, so we have a new Expiration Timestamp
 			$expiration = get_option( '_transient_timeout_pyis_mepr_ltv_data' );
 			
-			// date_i18n() doesn't support Timezones and I don't know why
-			// Even if you generate a Timezone-appropriate Timestamp, it converts it to UTC
-			$expiration = $this->date_i18n_timezone( false, $expiration );
+			$format = get_option( 'date_format', 'F j, Y' ) . preg_replace( '/(\S)/', '\\\$1', _x( ' at ', 'Datetime Separator', PYIS_MEPR_ID ) ) . get_option( 'time_format', 'g:i a' ) . ' T';
+			
+			$expiration = date_i18n( $format, $expiration, true );
 			
 			wp_send_json_success( array(
 				'expiration' => $expiration,
@@ -238,62 +238,6 @@ class PYIS_MEPR_LTV_Admin {
 		$screen->set_help_sidebar(
 			'<p><a href="//github.com/realbig/PL_PYIS_MEPR_LTV/issues" target="_blank">' . _x( 'Report an Issue', 'Issue Tracker Link Text', PYIS_MEPR_LTV_ID ) . '</a></p>'
 		);
-		
-	}
-	
-	/**
-	 * date_i18n() doesn't support Timezones. It explicitly works against them.
-	 * Based off http://wordpress.stackexchange.com/a/135049
-	 * 
-	 * @param		string  $format    PHP Date Format String
-	 * @param		integer $timestamp UNIX Timestamp to convert
-	 * @param		string  $timezone  Timezone String
-	 * @param		boolean $gmt       Whether or not this Timestamp is based on GMT
-	 *                                                                      
-	 * @access		public
-	 * @since		1.0.0
-	 * @return		string  Localized and Timezone-ified Date String
-	 */
-	public function date_i18n_timezone( $format = false, $timestamp = false, $timezone = false, $gmt = false ) {
-		
-		if ( ! $format ) {
-			$format = get_option( 'date_format' ) . preg_replace( '/(\S)/', '\\\$1', _x( ' at ', 'Datetime Separator', PYIS_MEPR_ID ) ) . get_option( 'time_format' ) . ' T';
-		}
-		
-		if ( ! $timestamp ) {
-			
-			if ( ! $gmt ) {
-				$timestamp = current_time( 'timestamp' );
-			}
-			else {
-				$timestamp = time();
-			}
-			
-			// date_i18n() defaults this to true if there's no Timestamp. Guess we will too
-			
-			// we should not let date() interfere with our
-			// specially computed timestamp
-			$gmt = true;
-			
-		}
-		
-		if ( ! $timezone ) {
-			$timezone = get_option( 'timezone_string' );
-		}
-
-		// The datetime in the local timezone
-		$datetime = new \DateTime( null, new DateTimeZone( $timezone ) );
-		$datetime->setTimestamp( (int) $timestamp );
-		$date_str = $datetime->format( 'Y-m-d H:i:s' );
-
-		// Pretend the local date is UTC to get the timestamp to pass to date_i18n()
-		// Otherwise date_i18n() "corrects" itself back to UTC
-		$utc_timezone = new \DateTimeZone( 'UTC' );
-		$utc_date = new \DateTime( $date_str, $utc_timezone );
-
-		$timestamp = $utc_date->getTimestamp();
-
-		return date_i18n( $format, $timestamp, $gmt );
 		
 	}
 	

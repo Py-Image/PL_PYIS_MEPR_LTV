@@ -89,7 +89,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 				if ( $item->$column_name == 0 &&
 				   $column_name == 'next_billed' ) return _x( 'Expired', 'No Next Billed Date Text', PYIS_MEPR_LTV_ID );
 				
-				return date_i18n( get_option( 'date_format' ), strtotime( $item->$column_name ) );
+				return date_i18n( get_option( 'date_format', 'F j, Y' ), strtotime( $item->$column_name ) );
 			case 'ltv' : 
 				return MeprAppHelper::format_currency( $item->$column_name, true );
 			default :
@@ -355,8 +355,14 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	public function get_data() {
 		
 		if ( ! $data = get_transient( 'pyis_mepr_ltv_data' ) ) {
+			
 			$data = $this->query();
-			set_transient( 'pyis_mepr_ltv_data', $data, WEEK_IN_SECONDS );
+			
+			$expiration = WEEK_IN_SECONDS;
+			$expiration = (int) $expiration + ( get_option( 'gmt_offset', 0 ) * HOUR_IN_SECONDS ); // Offset the Expiration by our Timezone
+			
+			set_transient( 'pyis_mepr_ltv_data', $data, $expiration );
+			
 		}
 		
 		return $data;
