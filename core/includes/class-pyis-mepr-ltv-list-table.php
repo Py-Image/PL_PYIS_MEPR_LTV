@@ -203,6 +203,8 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			
 		$data = $this->get_data();
 		
+		if ( ! is_array( $data ) ) $data = array();
+		
 		if ( isset( $_REQUEST['orderby'] ) ) {
 			
 			// If we're ordering by LTV
@@ -274,6 +276,27 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	public function display() {
 		
 		$this->prepare_items();
+		
+		if ( empty( $this->items ) ) :
+			
+			$status = get_transient( 'pyis_mepr_ltv_data_status' );
+		
+			if ( is_string( $status ) && 
+			   $status !== '1' ) : ?>
+		
+				<h3>
+					<?php printf( __( 'Crunching numbers... currently at %s of Users processed.', PYIS_MEPR_LTV_ID ), $status ); ?>
+				</h3>
+		
+			<?php elseif ( ! $status ) : ?>
+		
+				<h3>
+					<?php _e( 'Beginning to crunch numbers. Refresh page to check the status.', PYIS_MEPR_LTV_ID ); ?>
+				</h3>
+		
+			<?php endif;
+			
+		endif;
 		
 		?>
 		
@@ -354,195 +377,17 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 	 */
 	public function get_data() {
 		
-		if ( ! $data = get_transient( 'pyis_mepr_ltv_data' ) ) {
-			$data = $this->query();
-			set_transient( 'pyis_mepr_ltv_data', $data, WEEK_IN_SECONDS );
+		$status = get_transient( 'pyis_mepr_ltv_data_status' );
+		
+		if ( is_string( $status ) && 
+		   $status !== '1' ) {
+			return $status; // Return amount of data that has been processed
+		}
+		if ( ! $status ) {
+			return array(); // Return empty set
 		}
 		
-		return $data;
-		
-	}
-	
-	/**
-	 * Handles the actual Query
-	 * 
-	 * @acess		private
-	 * @since		1.0.0
-	 * @return		array Array of (modified) WP_User Objects
-	 */
-	private function query() {
-		
-		global $wpdb;
-		
-		$table_name = $wpdb->prefix . 'mepr_transactions';
-		
-		$query = "
-		SELECT DISTINCT(user_id)
-		FROM $table_name
-		WHERE status = 'complete'";
-		
-		// Grab a list of User IDs in the Transactions Table. This lets us narrow things down in a User Query
-		$has_transactions = $wpdb->get_results( $query, ARRAY_N );
-		
-		// We want a flat Array of just the User IDs
-		$has_transactions = array_map( array( $this,  'extract_user_id' ), $has_transactions );
-		
-		$args = array (
-            'order' => 'ASC',
-			'meta_key' => 'last_name',
-			'orderby' => 'meta_value',
-			'include' => $has_transactions,
-			'meta_query' => array(
-				'relation' => 'AND', // Based on $_REQUEST, we tack onto this with successive rules that must all be TRUE
-				array(
-					'relation' => 'OR', // In order to query two Roles with wp_user_query() you need to use a Meta Query. Not very intuitive.
-					array( 
-						'key' => $wpdb->prefix . 'capabilities',
-						'value' => 'subscriber',
-						'compare' => 'LIKE',
-					),
-					array(
-						'relation' => 'AND',
-						array(
-							'key' => $wpdb->prefix . 'capabilities',
-							'value' => 'administrator',
-							'compare' => 'LIKE',
-						),
-						array(
-							'key' => 'first_name',
-							'value' => 'Adrian',
-							'compare' => 'LIKE',
-						),
-						array(
-							'key' => 'last_name',
-							'value' => 'Rosebrock',
-							'compare' => 'LIKE',
-						)
-					),
-				),
-            ),
-			'fields' => array(
-				'ID',
-				'user_login',
-				'user_email',
-				'user_registered',
-			),
-		);
-		
-		$orderby = ( isset( $_REQUEST['orderby'] ) ) ? $_REQUEST['orderby'] : 'last_name';
-		
-		// WP can automagically handle ordering my Last Name, which is User Meta, for us.
-		if ( $orderby == 'last_name' ) {
-			$args['meta_key'] = $orderby;
-			$args['orderby'] = 'meta_value';
-		}
-		else {
-			$args['orderby'] = $orderby;
-		}
-		
-		$user_query = new WP_User_Query( $args );
-		
-		$results = $user_query->get_results();
-		
-		foreach ( $results as $user ) {
-			
-			$transactions = $this->completed_transactions_by_user_id( $user->ID );
-			
-			$ltv = 0;
-			$last_billed = '1970-01-01'; // Unix Epoch
-			$today = date( 'Y-m-d', current_time( 'timestamp' ) );
-			$next_billed = $today; // We only want the soonest next billed date, so we compare to today.
-			foreach ( $transactions as $transaction ) {
-				
-				$created_at = date( 'Y-m-d', strtotime( $transaction->rec->created_at ) );
-				if ( $created_at > $last_billed ) {
-					$last_billed = $created_at;
-				}
-				
-				if ( $next_billed == $today ) {
-				
-					$expires_at = date( 'Y-m-d', strtotime( $transaction->rec->expires_at ) );
-
-					if ( $expires_at == '-0001-11-30' ) { // It says to leave the field blank, but this seemingly random value is what gets saved
-						$next_billed = -1;
-						break; // Lifetime Subscription, stop looping
-					}
-					else if ( $expires_at > $next_billed ) {
-						$next_billed = $expires_at;
-					}
-					
-				}
-				
-				$ltv += $transaction->rec->total;
-				
-			}
-			
-			if ( $next_billed == $today ) {
-				$next_billed = 0; // No Next Billed Date
-			}
-			
-			$user->first_name = trim( get_user_meta( $user->ID, 'first_name', true ) );
-			$user->last_name = trim( get_user_meta( $user->ID, 'last_name', true ) );
-			$user->last_billed = $last_billed;
-			$user->next_billed = $next_billed;
-			$user->ltv = $ltv;
-			
-		}
-	
-		return $results;
-		
-	}
-	
-	/**
-	 * Array Map Callback needs to be a Class Method to prevent Function Redeclaration Errors
-	 * 
-	 * @param		array $array Input Array
-	 *                   
-	 * @access		public
-	 * @since		1.0.0
-	 * @return		array Extract out the inner Array's only value
-	 */
-	public function extract_user_id( $array ) {
-
-		$reset = reset( $array );
-
-		return $reset;
-
-	}
-	
-	/**
-	 * MemberPress is so weird about this stuff
-	 * 
-	 * @param		integer $user_id User ID
-	 *                               
-	 * @access		public
-	 * @since		1.0.0
-	 * @return		array   Array of Transactions that are Complete
-	 */
-	public function completed_transactions_by_user_id( $user_id ) {
-		
-		$transactions = MeprTransaction::get_all_objects_by_user_id( $user_id );
-		
-		$transactions = array_filter( $transactions, array( $this, 'completed_transactions_only' ) );
-		
-		return $transactions;
-		
-	}
-	
-	/**
-	 * Array Filter callback needs to be a Class Method to prevent Function Redclaration Errors
-	 * 
-	 * @param		object $object Transaction Object
-	 *                                    
-	 * @access		public
-	 * @since		1.0.0
-	 * @return		array  Filtered Transactions Array
-	 */
-	public function completed_transactions_only( $object ) {
-		
-		if ( $object->status !== 'complete' ) return false;
-			
-		return true;
+		return get_option( 'pyis_merp_ltv_data' );
 		
 	}
 	
