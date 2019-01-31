@@ -257,80 +257,6 @@
 			return url + hash;
 			
 		},
-		
-		/**
-		 * Clear out the Transient and Update the Table
-		 * 
-		 * @since		1.0.0
-		 * @return		void
-		 */
-		refresh: function( event ) {
-			
-			var button = event.currentTarget,
-				defaultText = $( button ).val();
-			
-			$( button ).val( pyisMeprLtv.i18n.flushProcessing );
-			
-			var data = {
-				_ajax_nonce: $( '#_pyis_mepr_ltv_nonce' ).val(),
-				action: 'pyis_mepr_ltv_flush',
-			};
-			
-			$.ajax( {
-				type: 'POST',
-				url: location.origin + ajaxurl,
-				data: data,
-				success: function( response ) {
-					
-					if ( response.success && 
-						response.hasOwnProperty( 'data' ) ) {
-					
-						response = response.data;
-					
-						$( '.transient-expiration' ).html( response.expiration );
-						
-					}
-
-				},
-				error : function( request, status, error ) {
-					console.error( request.responseText );
-					console.error( error );
-				}
-
-			} )
-			.done( function( response ) {
-				
-				if ( response.success === true && 
-					response.hasOwnProperty( 'data' ) ) {
-					
-					$( button ).val( pyisMeprLtv.i18n.flushSuccess );
-					
-					$( '.transient-expiration' ).effect( 'highlight', { color : '#DFF2BF' }, 1000 );
-					
-					setTimeout( function() {
-						$( button ).val( pyisMeprLtv.i18n.flushDefault );
-					}, 1000 );
-					
-				}
-				else {
-					
-					$( button ).val( pyisMeprLtv.i18n.flushError );
-					
-				}
-				
-			} );
-			
-			// Ensure that the current view is preserved
-			data.paged = $( 'input[name="paged"]' ).val();
-			data.order = $( 'input[name="order"]' ).val();
-			data.orderby = $( 'input[name="orderby"]' ).val();
-			data.s = $( '.search-box input[name="s"]' ).val();
-			data.event = 'flush';
-			
-			// Update using the refreshed data
-			pyisAjaxListTable.update( data );
-			
-		}
 
 	}
 
@@ -360,21 +286,6 @@
 
 		// Update the table
 		pyisAjaxListTable.update( data );
-
-	} );
-	
-	/** 
-	 * Clear the Transient Data and refresh the Table
-	 * This Event needs to be bound outside of the init() function otherwise it will get rebound constantly
-	 * 
-	 * @since		1.0.0
-	 * @return		void
-	 */
-	$( '.flush-transients.button' ).on( 'click', function( event ) {
-
-		event.preventDefault();
-
-		pyisAjaxListTable.refresh( event );
 
 	} );
 

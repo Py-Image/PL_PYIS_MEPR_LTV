@@ -82,7 +82,19 @@ class PyIS_MEPR_LTV_User_Query_Process extends WP_Background_Process {
 		update_option( 'pyis_merp_ltv_data', $data );
 		
 		if ( $count == $user->process_total ) {
+			
 			$this->complete(); // This should not be necessary, but I cannot find out why it is running longer than it should
+			
+			global $wpdb;
+		
+			// Phase Comment Key now removed from DB
+			$sql = $wpdb->delete(
+				$wpdb->options,
+				array(
+					'option_name' => '%pyis_mepr_ltv_user_query_process%',
+				)
+			);
+			
 		}
 
 		return false;

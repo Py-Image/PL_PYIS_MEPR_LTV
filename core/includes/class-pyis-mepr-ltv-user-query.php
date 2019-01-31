@@ -13,7 +13,7 @@ if ( ! class_exists( 'PyIS_MEPR_LTV_User_Query' ) ) {
 			
 			$this->process_all = new PyIS_MEPR_LTV_User_Query_Process();
 			
-			add_action( 'admin_init', array( $this, 'start_process' ), 1 );
+			add_action( 'admin_init', array( $this, 'start_process' ), 2 );
 			
 			add_action( 'admin_init', array( $this, 'process_handler' ) );
 			
@@ -42,6 +42,18 @@ if ( ! class_exists( 'PyIS_MEPR_LTV_User_Query' ) ) {
 			   $_GET['pyis_mepr_ltv_process'] == true ) {
 				
 				error_log( 'starting' );
+				
+				global $wpdb;
+		
+				// Phase Comment Key now removed from DB
+				$sql = $wpdb->delete(
+					$wpdb->options,
+					array(
+						'option_name' => '%pyis_mepr_ltv_user_query_process%',
+					)
+				);
+				
+				delete_option( 'pyis_mepr_ltv_data' );
 		
 				$this->handle_all();
 				
@@ -57,8 +69,6 @@ if ( ! class_exists( 'PyIS_MEPR_LTV_User_Query' ) ) {
 		 * Handle all
 		 */
 		protected function handle_all() {
-			
-			delete_option( 'pyis_mepr_ltv_data' );
 			
 			$users = $this->get_users();
 			
@@ -138,17 +148,6 @@ if ( ! class_exists( 'PyIS_MEPR_LTV_User_Query' ) ) {
 					'user_registered',
 				),
 			);
-
-			$orderby = ( isset( $_REQUEST['orderby'] ) ) ? $_REQUEST['orderby'] : 'last_name';
-
-			// WP can automagically handle ordering my Last Name, which is User Meta, for us.
-			if ( $orderby == 'last_name' ) {
-				$args['meta_key'] = $orderby;
-				$args['orderby'] = 'meta_value';
-			}
-			else {
-				$args['orderby'] = $orderby;
-			}
 
 			$user_query = new WP_User_Query( $args );
 

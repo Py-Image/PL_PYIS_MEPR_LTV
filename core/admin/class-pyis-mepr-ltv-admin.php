@@ -31,11 +31,9 @@ class PYIS_MEPR_LTV_Admin {
 
 			add_action( 'wp_ajax_pyis_mepr_ltv_list', array( $this, 'pyis_mepr_ltv_ajax_callback' ) );
 			
-			add_action( 'wp_ajax_pyis_mepr_ltv_flush', array( $this, 'pyis_mepr_ltv_flush_callback' ) );
-			
-			add_filter( 'pyis_mepr_ltv_localize_admin_script', array( $this, 'localize_javascript_text' ) );
-			
 			add_action( 'load-memberpress_page_pyis-mepr-ltv', array( $this, 'help_tab' ) );
+			
+			add_action( 'admin_init', array( $this, 'flush_table_data' ), 1 );
 			
 		}
 		
@@ -115,7 +113,7 @@ class PYIS_MEPR_LTV_Admin {
 
 			$this->table->display();
 
-			$expiration = get_option( '_transient_timeout_pyis_mepr_ltv_data' );
+			$expiration = get_option( '_transient_timeout_pyis_mepr_ltv_data_status' );
 
 			// date_i18n() doesn't support Timezones and I don't know why
 			// Even if you generate a Timezone-appropriate Timestamp, it converts it to UTC
@@ -123,11 +121,13 @@ class PYIS_MEPR_LTV_Admin {
 
 			?>
 
-			<label>
-				<input type="button" class="flush-transients button button-primary" value="<?php echo _x( 'Refresh Table Data', 'Flush Transients Label', PYIS_MEPR_LTV_ID ); ?>" /> <br />
-				<?php echo _x( 'Table data will refresh automatically on: ', 'Transient Expiration Date Label', PYIS_MEPR_LTV_ID ); ?>
-				<span class="transient-expiration"><?php echo $expiration; ?></span>
-			</label>
+			<form method="post">
+				<label>
+					<input type="submit" name="pyis_mepr_ltv_flush_transients" class="flush-transients button button-primary" value="<?php echo _x( 'Refresh Table Data', 'Flush Transients Label', PYIS_MEPR_LTV_ID ); ?>" /> <br />
+					<?php echo _x( 'Table data will refresh automatically on: ', 'Transient Expiration Date Label', PYIS_MEPR_LTV_ID ); ?>
+					<span class="transient-expiration"><?php echo $expiration; ?></span>
+				</label>
+			</form>
 			
 		</div>
 
@@ -149,65 +149,30 @@ class PYIS_MEPR_LTV_Admin {
 	}
 	
 	/**
-	 * Callback to clear the Transient via AJAX
+	 * Delete the LTV Data Status Transient, which will cause the Background Processing tasks to begin
 	 * 
 	 * @access		public
-	 * @since		1.0.0
-	 * @return		JSON
+	 * @since		{{VERSION}}
+	 * @return		void
 	 */
-	public function pyis_mepr_ltv_flush_callback() {
+	public function flush_table_data() {
 		
-		check_ajax_referer( 'pyis-mepr-ltv-nonce', '_pyis_mepr_ltv_nonce' );
+		if ( ! isset( $_POST['pyis_mepr_ltv_flush_transients'] ) || ! $_POST['pyis_mepr_ltv_flush_transients'] ) return;
 		
-		$deleted = delete_transient( 'pyis_mepr_ltv_data' );
+		global $wpdb;
 		
-		if ( $deleted === true ) {
-			
-			// Force a refresh of the data so we can get a new Expiration Datetime
-			$refresh = $this->table->get_data();
-		
-			// The Transient has been reset, so we have a new Expiration Timestamp
-			$expiration = get_option( '_transient_timeout_pyis_mepr_ltv_data' );
-			
-			// date_i18n() doesn't support Timezones and I don't know why
-			// Even if you generate a Timezone-appropriate Timestamp, it converts it to UTC
-			$expiration = $this->date_i18n_timezone( false, $expiration );
-			
-			wp_send_json_success( array(
-				'expiration' => $expiration,
-			) );
-			
-		}
-		else {
-			
-			// Something broke
-			wp_send_json_error( array(
-				'deleted' => $deleted,
-			) );
-			
-		}
-		
-	}
-	
-	/**
-	 * Localize Strings for JavaScript to use
-	 * 
-	 * @param		array $localization Localization Array
-	 *                                          
-	 * @access		public
-	 * @since		1.0.0
-	 * @return		array Localization Array
-	 */
-	public function localize_javascript_text( $localization ) {
-		
-		$localization['i18n'] = array(
-			'flushProcessing' => _x( 'Working...', 'Transient Flush in Process Text', PYIS_MEPR_LTV_ID ),
-			'flushSuccess' => _x( 'Done!', 'Transient Successfully Flushed Text', PYIS_MEPR_LTV_ID ),
-			'flushFailure' => _x( 'Failed to Refresh Data', 'Transient Flush Failed Text', PYIS_MEPR_LTV_ID ),
-			'flushDefault' => _x( 'Refresh Table Data', 'Flush Transients Label', PYIS_MEPR_LTV_ID ),
+		// Phase Comment Key now removed from DB
+		$sql = $wpdb->delete(
+			$wpdb->options,
+			array(
+				'option_name' => '%pyis_mepr_ltv_user_query_process%',
+			)
 		);
 		
-		return $localization;
+		delete_option( 'pyis_merp_ltv_data' );
+		
+		// This will cause the Background Processing tasks to fire off
+		delete_transient( 'pyis_mepr_ltv_data_status' );
 		
 	}
 	
@@ -232,7 +197,7 @@ class PYIS_MEPR_LTV_Admin {
 		$screen->add_help_tab( array(
 			'id'       => 'pyis-mepr-ltv-flush-transient',
 			'title'    => _x( 'Refresh Table Data', 'Refresh Table Data Help Tab Title', PYIS_MEPR_LTV_ID ),
-			'content'  => _x( "MemberPress doesn't play well with the global <code>\$wpdb</code> object, so the table's data is cached for a week for performance reasons. If this data needs to be manually flushed, click the \"Refresh Table Data\" button at the bottom of the screen. Doing so will not lose your page, sorting, or search terms and the table will refresh automatically. Once it is finished, it will flash green.", 'Refresh Table Data Help Tab Text', PYIS_MEPR_LTV_ID ),
+			'content'  => _x( "MemberPress doesn't play well with the global <code>\$wpdb</code> object, so the table's data is cached for a week for performance reasons. If this data needs to be manually flushed, click the \"Refresh Table Data\" button at the bottom of the screen. Doing so will not lose your page, sorting, or search terms.", 'Refresh Table Data Help Tab Text', PYIS_MEPR_LTV_ID ),
 		) );
 
 		$screen->set_help_sidebar(
