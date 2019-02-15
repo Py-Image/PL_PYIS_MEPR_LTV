@@ -3,7 +3,7 @@
 Plugin Name: PyImageSearch MemberPress LTV
 Plugin URL: https://github.com/realbig/PL_PYIS_MEPR_LTV
 Description: Provides a searchable and sortable table showing Life Time Value
-Version: 0.3.0
+Version: 1.0.0
 Text Domain: pyis-mepr-ltv
 Author: Eric Defore
 Author URI: http://realbigmarketing.com

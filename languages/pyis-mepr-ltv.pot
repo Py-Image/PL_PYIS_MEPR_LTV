@@ -1,4 +1,4 @@
-# Copyright (C) 2017 PYIS_MEPR_LTV
+# Copyright (C) 2019 PYIS_MEPR_LTV
 # This file is distributed under the same license as the PYIS_MEPR_LTV package.
 msgid ""
 msgstr ""
@@ -6,7 +6,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2017-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2019-MO-DA HO:MI+ZONE\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
@@ -14,54 +14,44 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: core/admin/class-pyis-mepr-ltv-admin.php:127
+#: core/admin/class-pyis-mepr-ltv-admin.php:126
 msgctxt "Flush Transients Label"
 msgid "Refresh Table Data"
 msgstr ""
 
-#: core/admin/class-pyis-mepr-ltv-admin.php:128
+#: core/admin/class-pyis-mepr-ltv-admin.php:127
 msgctxt "Transient Expiration Date Label"
 msgid "Table data will refresh automatically on: "
 msgstr ""
 
-#: core/admin/class-pyis-mepr-ltv-admin.php:204
-msgctxt "Transient Flush in Process Text"
-msgid "Working..."
-msgstr ""
-
-#: core/admin/class-pyis-mepr-ltv-admin.php:205
-msgctxt "Transient Successfully Flushed Text"
-msgid "Done!"
-msgstr ""
-
-#: core/admin/class-pyis-mepr-ltv-admin.php:206
-msgctxt "Transient Flush Failed Text"
-msgid "Failed to Refresh Data"
-msgstr ""
-
-#: core/admin/class-pyis-mepr-ltv-admin.php:228
+#: core/admin/class-pyis-mepr-ltv-admin.php:181
 msgctxt "How to Use Help Tab Title"
 msgid "How to Use"
 msgstr ""
 
-#: core/admin/class-pyis-mepr-ltv-admin.php:229
+#: core/admin/class-pyis-mepr-ltv-admin.php:182
 msgctxt "How to Use Help Tab Text"
 msgid "This page operates similarly to most Tables in the WordPress Admin, but it live-refreshes with any changes you make! You can sort columns and search for users without loading a whole new page. The URL in your address bar still updates accordingly in case you ever need to link back to a specific result. Note: The \"Full Name\" Column sorts by Last Name."
 msgstr ""
 
-#: core/admin/class-pyis-mepr-ltv-admin.php:234
+#: core/admin/class-pyis-mepr-ltv-admin.php:187
 msgctxt "Refresh Table Data Help Tab Title"
 msgid "Refresh Table Data"
 msgstr ""
 
-#: core/admin/class-pyis-mepr-ltv-admin.php:235
+#: core/admin/class-pyis-mepr-ltv-admin.php:188
 msgctxt "Refresh Table Data Help Tab Text"
-msgid "MemberPress doesn't play well with the global <code>$wpdb</code> object, so the table's data is cached for a week for performance reasons. If this data needs to be manually flushed, click the \"Refresh Table Data\" button at the bottom of the screen. Doing so will not lose your page, sorting, or search terms and the table will refresh automatically. Once it is finished, it will flash green."
+msgid "MemberPress doesn't play well with the global <code>$wpdb</code> object, so the table's data is cached for a week for performance reasons. If this data needs to be manually flushed, click the \"Refresh Table Data\" button at the bottom of the screen. Doing so will not lose your page, sorting, or search terms."
 msgstr ""
 
-#: core/admin/class-pyis-mepr-ltv-admin.php:239
+#: core/admin/class-pyis-mepr-ltv-admin.php:192
 msgctxt "Issue Tracker Link Text"
 msgid "Report an Issue"
+msgstr ""
+
+#: core/admin/class-pyis-mepr-ltv-admin.php:213
+msgctxt "Datetime Separator"
+msgid " at "
 msgstr ""
 
 #: core/includes/class-pyis-mepr-ltv-list-table.php:35
@@ -142,6 +132,14 @@ msgstr ""
 #: core/includes/class-pyis-mepr-ltv-list-table.php:122
 msgctxt "LTV Column Header"
 msgid "LTV"
+msgstr ""
+
+#: core/includes/class-pyis-mepr-ltv-list-table.php:288
+msgid "Crunching numbers... currently at %s of Users processed."
+msgstr ""
+
+#: core/includes/class-pyis-mepr-ltv-list-table.php:294
+msgid "Beginning to crunch numbers. Refresh page to check the status."
 msgstr ""
 
 #: pyis-mepr-ltv.php:69
