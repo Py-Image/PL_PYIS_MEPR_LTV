@@ -387,7 +387,7 @@ class PYIS_MEPR_LTV_List_Table extends WP_List_Table {
 			return array(); // Return empty set
 		}
 		
-		return get_option( 'pyis_merp_ltv_data' );
+		return get_option( 'pyis_mepr_ltv_data' );
 		
 	}
 	

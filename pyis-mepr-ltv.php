@@ -171,12 +171,12 @@ if ( ! class_exists( 'PYIS_MEPR_LTV' ) ) {
 		 */
 		private function require_necessities() {
 			
+			require_once PYIS_MEPR_LTV_DIR . '/core/vendor/autoload.php';
+			
 			if ( is_admin() ) {
 				
 				require_once PYIS_MEPR_LTV_DIR . '/core/admin/class-pyis-mepr-ltv-admin.php';
 				$this->admin = new PYIS_MEPR_LTV_Admin();
-				
-				require_once PYIS_MEPR_LTV_DIR . '/core/vendor/autoload.php';
 		
 				// Start background process to build table data
 				require_once PYIS_MEPR_LTV_DIR . '/core/includes/class-pyis-mepr-ltv-user-query.php';

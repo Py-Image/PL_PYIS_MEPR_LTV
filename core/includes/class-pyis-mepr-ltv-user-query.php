@@ -23,7 +23,8 @@ if ( ! class_exists( 'PyIS_MEPR_LTV_User_Query' ) ) {
 			
 			$status = get_transient( 'pyis_mepr_ltv_data_status' );
 			
-			if ( ! $status ) {
+			if ( ! $status && 
+			   ! isset( $_GET['pyis_mepr_ltv_process'] ) ) {
 				
 				$url = remove_query_arg( 'pyis_mepr_ltv_process' );
 
@@ -41,19 +42,8 @@ if ( ! class_exists( 'PyIS_MEPR_LTV_User_Query' ) ) {
 			if ( isset( $_GET['pyis_mepr_ltv_process'] ) && 
 			   $_GET['pyis_mepr_ltv_process'] == true ) {
 				
-				error_log( 'starting' );
-				
-				global $wpdb;
-		
-				// Phase Comment Key now removed from DB
-				$sql = $wpdb->delete(
-					$wpdb->options,
-					array(
-						'option_name' => '%pyis_mepr_ltv_user_query_process%',
-					)
-				);
-				
 				delete_option( 'pyis_mepr_ltv_data' );
+				wp_cache_delete( 'pyis_mepr_ltv_data', 'options' );
 		
 				$this->handle_all();
 				
@@ -69,6 +59,8 @@ if ( ! class_exists( 'PyIS_MEPR_LTV_User_Query' ) ) {
 		 * Handle all
 		 */
 		protected function handle_all() {
+			
+			error_log( 'Starting MemberPress LTV data build' );
 			
 			$users = $this->get_users();
 			

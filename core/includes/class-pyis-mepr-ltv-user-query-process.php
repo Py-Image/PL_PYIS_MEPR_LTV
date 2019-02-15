@@ -67,7 +67,7 @@ class PyIS_MEPR_LTV_User_Query_Process extends WP_Background_Process {
 		
 		$count = $user->process_index + 1;
 		
-		$data = get_option( 'pyis_merp_ltv_data' );
+		$data = get_option( 'pyis_mepr_ltv_data' );
 		
 		if ( ! $data ) {
 			$data = array();
@@ -79,23 +79,7 @@ class PyIS_MEPR_LTV_User_Query_Process extends WP_Background_Process {
 		error_log( "$count / $user->process_total Users have been processed" );
 		set_transient( 'pyis_mepr_ltv_data_status', "$count/$user->process_total", WEEK_IN_SECONDS );
 		
-		update_option( 'pyis_merp_ltv_data', $data );
-		
-		if ( $count == $user->process_total ) {
-			
-			$this->complete(); // This should not be necessary, but I cannot find out why it is running longer than it should
-			
-			global $wpdb;
-		
-			// Phase Comment Key now removed from DB
-			$sql = $wpdb->delete(
-				$wpdb->options,
-				array(
-					'option_name' => '%pyis_mepr_ltv_user_query_process%',
-				)
-			);
-			
-		}
+		update_option( 'pyis_mepr_ltv_data', $data );
 
 		return false;
 		

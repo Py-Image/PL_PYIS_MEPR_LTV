@@ -159,18 +159,6 @@ class PYIS_MEPR_LTV_Admin {
 		
 		if ( ! isset( $_POST['pyis_mepr_ltv_flush_transients'] ) || ! $_POST['pyis_mepr_ltv_flush_transients'] ) return;
 		
-		global $wpdb;
-		
-		// Phase Comment Key now removed from DB
-		$sql = $wpdb->delete(
-			$wpdb->options,
-			array(
-				'option_name' => '%pyis_mepr_ltv_user_query_process%',
-			)
-		);
-		
-		delete_option( 'pyis_merp_ltv_data' );
-		
 		// This will cause the Background Processing tasks to fire off
 		delete_transient( 'pyis_mepr_ltv_data_status' );
 		
